@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    laraframe_tmp_lib::run()
+    laraframe_lib::run()
 }
