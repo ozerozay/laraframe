@@ -3,10 +3,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useAutoUpdate } from "@/hooks/useAutoUpdate";
 import { Sidebar } from "./Sidebar";
 
 export function AppLayout() {
   useKeyboardShortcuts();
+  useAutoUpdate();
   return (
     <TooltipProvider>
       <div className="flex h-screen overflow-hidden bg-background text-foreground">
