@@ -32,7 +32,7 @@ export function ScheduledJobsWidget({ token, orgSlug, serverId, siteId }: Props)
     try {
       const j = await cachedFetch(`site:${siteId}:jobs`, () => forgeListScheduledJobs(token, orgSlug, serverId, siteId));
       setJobs(j); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load scheduled jobs:", err); setLoaded(true); }
     setLoading(false);
   };
 
@@ -64,7 +64,7 @@ export function ScheduledJobsWidget({ token, orgSlug, serverId, siteId }: Props)
     try {
       const o = await cachedFetch(`job:${jobId}:output`, () => forgeGetScheduledJobOutput(token, orgSlug, serverId, siteId, jobId), 300_000);
       setOutput(o);
-    } catch { setOutput("No output available."); }
+    } catch (err) { console.error("Failed to load job output:", err); setOutput("No output available."); }
     setOutputLoading(false);
   };
 

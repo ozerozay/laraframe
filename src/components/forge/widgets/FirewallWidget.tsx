@@ -32,7 +32,7 @@ export function FirewallWidget({ token, orgSlug, serverId }: Props) {
     try {
       const r = await cachedFetch(`server:${serverId}:firewall`, () => forgeListFirewallRules(token, orgSlug, serverId));
       setRules(r); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load firewall rules:", err); setLoaded(true); }
     setLoading(false);
   };
 

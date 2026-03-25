@@ -34,7 +34,8 @@ export function DeployScriptWidget({ token, orgSlug, serverId, siteId }: Props) 
       setContent(script);
       setDraft(script);
       setLoaded(true);
-    } catch {
+    } catch (err) {
+      console.error("Failed to load deploy script:", err);
       toast.error("Failed to load deploy script");
       setLoaded(true);
     }

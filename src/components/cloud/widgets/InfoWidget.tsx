@@ -22,7 +22,7 @@ export function InfoWidget({ token: _token, cacheKey, fetcher, title }: Props) {
       const d = await cachedFetch(cacheKey, fetcher, 300_000);
       setData(d);
       setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load info:", err); setLoaded(true); }
     setLoading(false);
   };
 

@@ -32,7 +32,7 @@ export function CloudInstancesWidget({ token, envId }: Props) {
     try {
       const i = await cachedFetch(`cloud:env:${envId}:instances`, () => cloudListInstances(token, envId));
       setInstances(i); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load instances:", err); setLoaded(true); }
     setLoading(false);
   };
 

@@ -36,7 +36,7 @@ export function DaemonsWidget({ token, orgSlug, serverId }: Props) {
     try {
       const d = await cachedFetch(`server:${serverId}:daemons`, () => forgeListDaemons(token, orgSlug, serverId));
       setDaemons(d); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load daemons:", err); setLoaded(true); }
     setLoading(false);
   };
 
@@ -79,7 +79,7 @@ export function DaemonsWidget({ token, orgSlug, serverId }: Props) {
     try {
       const log = await cachedFetch(`daemon:${id}:log`, () => forgeGetDaemonLog(token, orgSlug, serverId, id), 120_000);
       setDaemonLog(log);
-    } catch { setDaemonLog("Failed to load log."); }
+    } catch (err) { console.error("Failed to load daemon log:", err); setDaemonLog("Failed to load log."); }
     setLogLoading(false);
   };
 

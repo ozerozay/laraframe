@@ -29,7 +29,7 @@ export function CloudCommandsWidget({ token, envId }: Props) {
     try {
       const c = await cachedFetch(`cloud:env:${envId}:commands`, () => cloudListCommands(token, envId));
       setCommands(c); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load cloud commands:", err); setLoaded(true); }
     setLoading(false);
   };
 
@@ -54,7 +54,7 @@ export function CloudCommandsWidget({ token, envId }: Props) {
     try {
       const c = await cachedFetch(`cloud:cmd:${cmdId}`, () => cloudGetCommand(token, cmdId), 300_000);
       setOutput(c.output || "No output");
-    } catch { setOutput("Failed to load output."); }
+    } catch (err) { console.error("Failed to load command output:", err); setOutput("Failed to load output."); }
     setOutputLoading(false);
   };
 

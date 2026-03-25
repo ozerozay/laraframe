@@ -28,7 +28,7 @@ export function HeartbeatsWidget({ token, orgSlug, serverId, siteId }: Props) {
     try {
       const h = await cachedFetch(`site:${siteId}:heartbeats`, () => forgeListHeartbeats(token, orgSlug, serverId, siteId));
       setHeartbeats(h); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load heartbeats:", err); setLoaded(true); }
     setLoading(false);
   };
 

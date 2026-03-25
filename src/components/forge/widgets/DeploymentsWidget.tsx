@@ -41,7 +41,8 @@ export function DeploymentsWidget({ deployments, token, orgSlug, serverId, siteI
         300_000
       );
       setDeployLog(log);
-    } catch {
+    } catch (err) {
+      console.error("Failed to load deployment log:", err);
       setDeployLog("Failed to load deployment log.");
     }
     setLogLoading(false);

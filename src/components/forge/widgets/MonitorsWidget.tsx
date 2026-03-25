@@ -28,7 +28,7 @@ export function MonitorsWidget({ token, orgSlug, serverId }: Props) {
     setLoading(true);
     cachedFetch(`server:${serverId}:monitors`, () => forgeListMonitors(token, orgSlug, serverId))
       .then((m) => { setMonitors(m); setLoaded(true); })
-      .catch(() => setLoaded(true))
+      .catch((err) => { console.error("Failed to load monitors:", err); setLoaded(true); })
       .finally(() => setLoading(false));
   }
 

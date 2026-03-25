@@ -28,7 +28,7 @@ export function WebSocketAppsWidget({ token, serverId }: Props) {
     try {
       const a = await cachedFetch(`cloud:ws:${serverId}:apps`, () => cloudListWebsocketApplications(token, serverId));
       setApps(a); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load WebSocket apps:", err); setLoaded(true); }
     setLoading(false);
   };
 

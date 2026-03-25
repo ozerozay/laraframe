@@ -39,7 +39,8 @@ export function CommandsWidget({ token, orgSlug, serverId, siteId }: Props) {
       );
       setCommands(cmds);
       setLoaded(true);
-    } catch {
+    } catch (err) {
+      console.error("Failed to load commands:", err);
       setLoaded(true);
     }
     setLoading(false);
@@ -71,7 +72,7 @@ export function CommandsWidget({ token, orgSlug, serverId, siteId }: Props) {
         forgeGetCommandOutput(token, orgSlug, serverId, siteId, cmdId), 300_000
       );
       setOutput(out);
-    } catch { setOutput("Failed to load output."); }
+    } catch (err) { console.error("Failed to load command output:", err); setOutput("Failed to load output."); }
     setOutputLoading(false);
   };
 

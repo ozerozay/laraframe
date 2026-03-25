@@ -67,7 +67,7 @@ export function CloudDatabasesWidget({ token }: Props) {
         cachedFetch("cloud:db:standalone", () => cloudListDatabases(token)),
       ]);
       setClusters(c); setDatabases(d); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load database clusters:", err); setLoaded(true); }
     setLoading(false);
   };
 
@@ -84,7 +84,7 @@ export function CloudDatabasesWidget({ token }: Props) {
     try {
       const s = await cachedFetch(`cloud:db:${cluster.id}:schemas`, () => cloudListClusterDatabases(token, cluster.id));
       setSchemas(s);
-    } catch { toast.error("Failed to load schemas"); }
+    } catch (err) { console.error("Failed to load schemas:", err); toast.error("Failed to load schemas"); }
     setSchemasLoading(false);
   };
 
@@ -93,7 +93,7 @@ export function CloudDatabasesWidget({ token }: Props) {
     try {
       const s = await cachedFetch(`cloud:db:${cluster.id}:snapshots`, () => cloudListDatabaseSnapshots(token, cluster.id));
       setSnapshots(s);
-    } catch { toast.error("Failed to load snapshots"); }
+    } catch (err) { console.error("Failed to load snapshots:", err); toast.error("Failed to load snapshots"); }
     setSnapshotsLoading(false);
   };
 

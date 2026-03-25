@@ -22,7 +22,7 @@ export function EventsWidget({ token, orgSlug, serverId }: Props) {
     setLoading(true);
     cachedFetch(`server:${serverId}:events`, () => forgeGetEvents(token, orgSlug, serverId))
       .then((e) => { setEvents(e); setLoaded(true); })
-      .catch(() => setLoaded(true))
+      .catch((err) => { console.error("Failed to load events:", err); setLoaded(true); })
       .finally(() => setLoading(false));
   }
 

@@ -22,6 +22,7 @@ struct JsonApiMany<A> {
 struct JsonApiResource<A> {
     id: String,
     #[serde(rename = "type")]
+    #[allow(dead_code)]
     resource_type: String,
     attributes: A,
 }
@@ -52,6 +53,7 @@ struct ServerAttrs {
     #[serde(default)]
     ip_address: Option<String>,
     #[serde(default)]
+    #[allow(dead_code)]
     private_ip_address: Option<String>,
     #[serde(default)]
     php_version: Option<String>,
@@ -70,6 +72,7 @@ struct ServerAttrs {
 #[derive(Debug, Deserialize)]
 struct SiteRepository {
     #[serde(default)]
+    #[allow(dead_code)]
     provider: Option<String>,
     #[serde(default)]
     url: Option<String>,
@@ -288,6 +291,7 @@ struct BackupConfigAttrs {
     #[serde(default)]
     provider: String,
     #[serde(default)]
+    #[allow(dead_code)]
     databases: serde_json::Value,
     #[serde(default)]
     frequency: String,
@@ -352,6 +356,7 @@ struct DaemonAttrs {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct DaemonLogAttrs {
     #[serde(default)]
     output: Option<String>,

@@ -30,7 +30,7 @@ export function SecurityRulesWidget({ token, orgSlug, serverId, siteId }: Props)
     try {
       const r = await cachedFetch(`site:${siteId}:security`, () => forgeListSecurityRules(token, orgSlug, serverId, siteId));
       setRules(r); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load security rules:", err); setLoaded(true); }
     setLoading(false);
   };
 

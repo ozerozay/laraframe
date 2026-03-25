@@ -34,7 +34,8 @@ export function NginxConfigWidget({ token, orgSlug, serverId, siteId }: Props) {
       setContent(cfg);
       setDraft(cfg);
       setLoaded(true);
-    } catch {
+    } catch (err) {
+      console.error("Failed to load Nginx config:", err);
       toast.error("Failed to load Nginx config");
       setLoaded(true);
     }

@@ -30,7 +30,7 @@ export function SSHKeysWidget({ token, orgSlug, serverId }: Props) {
     try {
       const k = await cachedFetch(`server:${serverId}:sshkeys`, () => forgeListSSHKeys(token, orgSlug, serverId));
       setKeys(k); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load SSH keys:", err); setLoaded(true); }
     setLoading(false);
   };
 

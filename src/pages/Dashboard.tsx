@@ -69,7 +69,7 @@ export function Dashboard() {
         const path = await getMcpServerPath();
         result.mcpReady = true;
         result.mcpPath = path;
-      } catch { /* not built */ }
+      } catch (err) { console.error("MCP server not available:", err); }
 
       // Forge data
       if (forgeKey) {
@@ -88,7 +88,7 @@ export function Dashboard() {
               result.forgeSites = sites;
             }
           }
-        } catch { /* ignore */ }
+        } catch (err) { console.error("Failed to load Forge dashboard data:", err); }
       }
 
       // Cloud data
@@ -101,14 +101,14 @@ export function Dashboard() {
             result.cloudEnvs = envs;
           }
           const [dbs, caches] = await Promise.all([
-            cachedFetch("dashboard:cloud:dbs", () => cloudListDatabaseClusters(cloudKey), 120_000).catch(() => []),
-            cachedFetch("dashboard:cloud:caches", () => cloudListCaches(cloudKey), 120_000).catch(() => []),
+            cachedFetch("dashboard:cloud:dbs", () => cloudListDatabaseClusters(cloudKey), 120_000).catch((err) => { console.error("Failed to load cloud DBs:", err); return []; }),
+            cachedFetch("dashboard:cloud:caches", () => cloudListCaches(cloudKey), 120_000).catch((err) => { console.error("Failed to load cloud caches:", err); return []; }),
           ]);
           result.cloudDbCount = (dbs as unknown[]).length;
           result.cloudCacheCount = (caches as unknown[]).length;
-        } catch { /* ignore */ }
+        } catch (err) { console.error("Failed to load Cloud dashboard data:", err); }
       }
-    } catch { /* ignore */ }
+    } catch (err) { console.error("Dashboard load failed:", err); }
 
     setData(result);
     setLoading(false);

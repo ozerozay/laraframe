@@ -29,7 +29,7 @@ export function BackgroundProcessesWidget({ token, instanceId }: Props) {
     try {
       const p = await cachedFetch(`cloud:instance:${instanceId}:bgprocesses`, () => cloudListBackgroundProcesses(token, instanceId));
       setProcesses(p); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load background processes:", err); setLoaded(true); }
     setLoading(false);
   };
 

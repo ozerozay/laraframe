@@ -28,7 +28,7 @@ export function CloudWebSocketsWidget({ token }: Props) {
   const load = async (force = false) => {
     setLoading(true);
     if (force) invalidateCache("cloud:ws");
-    try { const s = await cachedFetch("cloud:ws", () => cloudListWebsocketServers(token)); setServers(s); setLoaded(true); } catch { setLoaded(true); }
+    try { const s = await cachedFetch("cloud:ws", () => cloudListWebsocketServers(token)); setServers(s); setLoaded(true); } catch (err) { console.error("Failed to load WebSocket servers:", err); setLoaded(true); }
     setLoading(false);
   };
 

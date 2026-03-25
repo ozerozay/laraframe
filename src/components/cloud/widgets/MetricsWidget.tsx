@@ -27,7 +27,7 @@ export function MetricsWidget({ token: _token, cacheKey, fetcher, title = "Metri
       const d = await cachedFetch(cacheKey, fetcher, 60_000);
       setData(d);
       setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load metrics:", err); setLoaded(true); }
     setLoading(false);
   };
 

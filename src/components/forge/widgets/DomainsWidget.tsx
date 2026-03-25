@@ -66,7 +66,8 @@ export function DomainsWidget({ token, orgSlug, serverId, siteId }: Props) {
       );
       setDomains(d);
       setLoaded(true);
-    } catch {
+    } catch (err) {
+      console.error("Failed to load domains:", err);
       toast.error("Failed to load domains");
       setLoaded(true);
     }
@@ -124,7 +125,8 @@ export function DomainsWidget({ token, orgSlug, serverId, siteId }: Props) {
         120_000
       );
       setCert(c);
-    } catch {
+    } catch (err) {
+      console.error("Failed to load domain certificate:", err);
       setCert(null);
     }
     setCertLoading(false);
@@ -139,7 +141,8 @@ export function DomainsWidget({ token, orgSlug, serverId, siteId }: Props) {
       );
       setNginx(cfg);
       setNginxDraft(cfg);
-    } catch {
+    } catch (err) {
+      console.error("Failed to load domain nginx config:", err);
       setNginx("Failed to load nginx config");
     }
     setNginxLoading(false);

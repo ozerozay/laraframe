@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Globe, RefreshCw } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -92,7 +92,20 @@ export function ServerDetail({ server, token, orgSlug }: Props) {
     setSiteLoading(false);
   };
 
-  const refreshAll = async (siteId: string) => {
+  // Use refs to avoid stale closures in polling
+  const deploymentsRef = useRef(deployments);
+  deploymentsRef.current = deployments;
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Clean up polling on unmount
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }, []);
+
+  const refreshData = useCallback(async (siteId: string) => {
     invalidateCache(`site:${siteId}:deployments`);
     invalidateCache(`server:${server.id}:sites`);
     const [newDeps, newSites] = await Promise.all([
@@ -101,12 +114,13 @@ export function ServerDetail({ server, token, orgSlug }: Props) {
     ]);
     setCache(`site:${siteId}:deployments`, newDeps);
     setCache(`server:${server.id}:sites`, newSites);
-    setDeployments(newDeps);
-    setSites(newSites);
+    // Force React to update by using functional setState
+    setDeployments(() => newDeps);
+    setSites(() => newSites);
     const updated = newSites.find((s) => s.id === siteId);
-    if (updated) setSelectedSite(updated);
+    if (updated) setSelectedSite(() => updated);
     return { deps: newDeps, site: updated };
-  };
+  }, [token, orgSlug, server.id]);
 
   const deploySite = async (site: ForgeSite) => {
     setDeployingId(site.id);
@@ -114,26 +128,44 @@ export function ServerDetail({ server, token, orgSlug }: Props) {
     try {
       await forgeDeploySite(token, orgSlug, server.id, site.id);
       toast.success(`Deployment queued`, { id: toastId, description: site.name });
+
+      // Wait then do initial refresh
       await new Promise((r) => setTimeout(r, 2000));
-      await refreshAll(site.id);
-      for (let i = 0; i < 60; i++) {
-        await new Promise((r) => setTimeout(r, 5000));
-        const { deps, site: current } = await refreshAll(site.id);
-        const status = current?.deployment_status;
-        if (!status || !["deploying", "queued"].includes(status)) {
-          const latest = [...deps].pop();
-          if (latest?.status === "failed") {
-            toast.error(`Deployment failed: ${site.name}`, { description: latest.commit_message || undefined });
-          } else {
-            toast.success(`Deployed: ${site.name}`, { description: latest?.commit_message || undefined });
+      await refreshData(site.id);
+
+      // Start polling with setInterval (no closure issues)
+      stopPolling();
+      pollRef.current = setInterval(async () => {
+        try {
+          const { deps, site: current } = await refreshData(site.id);
+          const status = current?.deployment_status;
+          if (!status || !["deploying", "queued"].includes(status)) {
+            stopPolling();
+            setDeployingId(null);
+            const latest = [...deps].pop();
+            if (latest?.status === "failed") {
+              toast.error(`Deployment failed: ${site.name}`, { description: latest.commit_message || undefined });
+            } else {
+              toast.success(`Deployed: ${site.name}`, { description: latest?.commit_message || undefined });
+            }
           }
-          break;
+        } catch {
+          stopPolling();
+          setDeployingId(null);
         }
-      }
+      }, 5000);
+
+      // Safety timeout: stop polling after 5 minutes
+      setTimeout(() => {
+        if (pollRef.current) {
+          stopPolling();
+          setDeployingId(null);
+        }
+      }, 300_000);
     } catch (err) {
       toast.error(`Deploy failed: ${site.name}`, { id: toastId, description: String(err) });
+      setDeployingId(null);
     }
-    setDeployingId(null);
   };
 
   if (sitesLoading) {
@@ -246,11 +278,7 @@ export function ServerDetail({ server, token, orgSlug }: Props) {
                         orgSlug={orgSlug}
                         serverId={server.id}
                         siteId={selectedSite.id}
-                        onRefresh={async () => {
-                          invalidateCache(`site:${selectedSite.id}:deployments`);
-                          const deps = await forgeListDeployments(token, orgSlug, server.id, selectedSite.id);
-                          setDeployments(deps);
-                        }}
+                        onRefresh={() => refreshData(selectedSite.id)}
                       />
                     </TabsContent>
 

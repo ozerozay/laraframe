@@ -29,7 +29,7 @@ export function CloudCachesWidget({ token }: Props) {
   const load = async (force = false) => {
     setLoading(true);
     if (force) invalidateCache("cloud:caches");
-    try { const c = await cachedFetch("cloud:caches", () => cloudListCaches(token)); setCaches(c); setLoaded(true); } catch { setLoaded(true); }
+    try { const c = await cachedFetch("cloud:caches", () => cloudListCaches(token)); setCaches(c); setLoaded(true); } catch (err) { console.error("Failed to load caches:", err); setLoaded(true); }
     setLoading(false);
   };
 

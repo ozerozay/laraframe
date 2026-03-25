@@ -246,7 +246,7 @@ export function CloudPage() {
     try {
       const i = await cachedFetch(`cloud:env:${selectedEnv.id}:instances`, () => cloudListInstances(token, selectedEnv.id));
       setInstances(i);
-    } catch { /* ignore */ }
+    } catch (err) { console.error("Failed to load cloud instances:", err); }
   };
 
   /* States */

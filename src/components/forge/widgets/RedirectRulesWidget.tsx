@@ -30,7 +30,7 @@ export function RedirectRulesWidget({ token, orgSlug, serverId, siteId }: Props)
     try {
       const r = await cachedFetch(`site:${siteId}:redirects`, () => forgeListRedirectRules(token, orgSlug, serverId, siteId));
       setRules(r); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load redirect rules:", err); setLoaded(true); }
     setLoading(false);
   };
 

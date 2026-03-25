@@ -31,7 +31,7 @@ export function CloudDeploymentsWidget({ deployments, token, onRefresh }: Props)
     try {
       const log = await cachedFetch(`cloud:deploy:${depId}:log`, () => cloudGetDeploymentLogs(token, depId), 300_000);
       setDeployLog(log);
-    } catch { setDeployLog("Failed to load deployment log."); }
+    } catch (err) { console.error("Failed to load deployment log:", err); setDeployLog("Failed to load deployment log."); }
     setLogLoading(false);
   };
 

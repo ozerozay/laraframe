@@ -28,7 +28,7 @@ export function WebhooksWidget({ token, orgSlug, serverId, siteId }: Props) {
     try {
       const w = await cachedFetch(`site:${siteId}:webhooks`, () => forgeListWebhooks(token, orgSlug, serverId, siteId));
       setWebhooks(w); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load webhooks:", err); setLoaded(true); }
     setLoading(false);
   };
 

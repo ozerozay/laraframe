@@ -28,7 +28,7 @@ export function PHPVersionsWidget({ token, orgSlug, serverId }: Props) {
     try {
       const v = await cachedFetch(`server:${serverId}:php`, () => forgeListPHPVersions(token, orgSlug, serverId));
       setVersions(v); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load PHP versions:", err); setLoaded(true); }
     setLoading(false);
   };
 

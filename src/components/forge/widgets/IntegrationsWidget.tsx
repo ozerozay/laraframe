@@ -49,7 +49,8 @@ export function IntegrationsWidget({ token, orgSlug, serverId, siteId }: Props) 
         );
         const hasData = data && typeof data === "object" && Object.keys(data as object).length > 0;
         newStates[integration.key] = { loaded: true, enabled: !!hasData, data, toggling: false };
-      } catch {
+      } catch (err) {
+        console.error(`Failed to load integration ${integration.key}:`, err);
         newStates[integration.key] = { loaded: true, enabled: false, data: null, toggling: false };
       }
     }

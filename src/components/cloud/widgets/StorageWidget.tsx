@@ -34,7 +34,7 @@ export function CloudStorageWidget({ token }: Props) {
   const load = async (force = false) => {
     setLoading(true);
     if (force) invalidateCache("cloud:buckets");
-    try { const b = await cachedFetch("cloud:buckets", () => cloudListBuckets(token)); setBuckets(b); setLoaded(true); } catch { setLoaded(true); }
+    try { const b = await cachedFetch("cloud:buckets", () => cloudListBuckets(token)); setBuckets(b); setLoaded(true); } catch (err) { console.error("Failed to load buckets:", err); setLoaded(true); }
     setLoading(false);
   };
 
@@ -43,7 +43,7 @@ export function CloudStorageWidget({ token }: Props) {
   const expand = async (id: string) => {
     if (expandedId === id) { setExpandedId(null); return; }
     setExpandedId(id); setKeysLoading(true);
-    try { const k = await cachedFetch(`cloud:bucket:${id}:keys`, () => cloudListBucketKeys(token, id)); setKeys(k); } catch { setKeys([]); }
+    try { const k = await cachedFetch(`cloud:bucket:${id}:keys`, () => cloudListBucketKeys(token, id)); setKeys(k); } catch (err) { console.error("Failed to load bucket keys:", err); setKeys([]); }
     setKeysLoading(false);
   };
 

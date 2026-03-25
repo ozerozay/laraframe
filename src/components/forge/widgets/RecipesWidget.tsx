@@ -46,7 +46,7 @@ export function RecipesWidget({ token, orgSlug, serverId }: Props) {
     try {
       const r = await cachedFetch(`org:${orgSlug}:recipes`, () => forgeListRecipes(token, orgSlug));
       setRecipes(r); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load recipes:", err); setLoaded(true); }
     setLoading(false);
   };
 

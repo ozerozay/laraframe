@@ -23,7 +23,7 @@ export function HealthcheckWidget({ token, orgSlug, serverId, siteId }: Props) {
     try {
       const u = await cachedFetch(`site:${siteId}:healthcheck`, () => forgeGetHealthcheck(token, orgSlug, serverId, siteId));
       setUrl(u); setDraft(u); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load healthcheck:", err); setLoaded(true); }
     setLoading(false);
   };
 

@@ -31,7 +31,7 @@ export function CloudDomainsWidget({ token, envId }: Props) {
     try {
       const d = await cachedFetch(`cloud:env:${envId}:domains`, () => cloudListDomains(token, envId));
       setDomains(d); setLoaded(true);
-    } catch { setLoaded(true); }
+    } catch (err) { console.error("Failed to load cloud domains:", err); setLoaded(true); }
     setLoading(false);
   };
 

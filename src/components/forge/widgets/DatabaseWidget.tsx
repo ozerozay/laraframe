@@ -95,7 +95,8 @@ export function DatabaseWidget({ token, orgSlug, serverId }: Props) {
       setUsers(usrs);
       setBackupConfigs(bkps);
       setLoaded(true);
-    } catch {
+    } catch (err) {
+      console.error("Failed to load databases:", err);
       toast.error("Failed to load databases");
       setLoaded(true);
     }
@@ -189,7 +190,8 @@ export function DatabaseWidget({ token, orgSlug, serverId }: Props) {
         120_000
       );
       setBackupInstances(instances);
-    } catch {
+    } catch (err) {
+      console.error("Failed to load backups:", err);
       toast.error("Failed to load backups");
     }
     setBackupsLoading(false);
