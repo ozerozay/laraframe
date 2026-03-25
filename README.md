@@ -19,6 +19,8 @@
 
 Instead of switching between Forge dashboard, Cloud dashboard, and Nightwatch — manage everything from one desktop app. Deploy sites, manage databases, view logs, run commands, monitor metrics — all without opening a browser.
 
+> **No account, no login, no server, no tracking.** LaraFrame runs 100% locally on your machine. Your API tokens are stored in your OS Keychain (macOS Keychain / Windows Credential Manager) — never sent anywhere except directly to Laravel's APIs. There is no LaraFrame backend, no analytics, no telemetry. Your data stays on your computer.
+
 Plus, AI tools like Claude Code, Cursor, and Windsurf can control your infrastructure through the built-in MCP server.
 
 ## Features
