@@ -60,10 +60,10 @@ export function DeploymentsWidget({ deployments, token, orgSlug, serverId, siteI
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border/30 px-4 py-2">
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-sm text-muted-foreground">
           {deployments.length} {t("site.deployments").toLowerCase()}
         </span>
-        <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-[10px]" onClick={handleRefresh}>
+        <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={handleRefresh}>
           <RefreshCw className="h-2.5 w-2.5" /> {t("app.refresh")}
         </Button>
       </div>
@@ -92,10 +92,10 @@ export function DeploymentsWidget({ deployments, token, orgSlug, serverId, siteI
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium leading-snug truncate">
+                    <p className="text-sm font-medium leading-snug truncate">
                       {dep.commit_message || dep.deploy_type || "Deployment"}
                     </p>
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[10px] text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
                       {dep.commit_author && (
                         <span className="flex items-center gap-1">
                           <User className="h-2.5 w-2.5" /> {dep.commit_author}
@@ -119,7 +119,7 @@ export function DeploymentsWidget({ deployments, token, orgSlug, serverId, siteI
                     <div className="text-right">
                       <Badge
                         variant="outline"
-                        className={`text-[9px] font-normal ${
+                        className={`text-sm font-normal ${
                           dep.status === "finished"
                             ? "border-emerald-500/30 text-emerald-500"
                             : dep.status === "failed"
@@ -129,7 +129,7 @@ export function DeploymentsWidget({ deployments, token, orgSlug, serverId, siteI
                       >
                         {dep.deploy_type || "deploy"}
                       </Badge>
-                      <p className="mt-1 text-[10px] text-muted-foreground">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         {timeAgo(dep.created_at || dep.ended_at)}
                       </p>
                     </div>
@@ -144,7 +144,7 @@ export function DeploymentsWidget({ deployments, token, orgSlug, serverId, siteI
 
               {/* Expanded deploy log */}
               {isExpanded && (
-                <div className="bg-zinc-100 dark:bg-zinc-950 px-2 py-3 font-mono text-[11px] leading-5 max-h-[50vh] overflow-auto border-t border-border/20">
+                <div className="bg-zinc-100 dark:bg-zinc-950 px-2 py-3 font-mono text-sm leading-5 max-h-[50vh] overflow-auto border-t border-border/20">
                   {logLoading ? (
                     <div className="flex items-center justify-center py-12">
                       <div className="flex items-center gap-2 text-muted-foreground">

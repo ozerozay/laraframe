@@ -17,48 +17,47 @@ export function SiteList({ sites, selectedId, onSelect }: Props) {
   }
 
   return (
-    <div className="w-80 shrink-0 space-y-1.5 overflow-auto">
+    <div className="flex-1 overflow-auto">
       {sites.map((site) => {
         const active = site.id === selectedId;
+        const isDeploying = site.deployment_status === "deploying" || site.deployment_status === "queued";
         return (
           <div
             key={site.id}
-            className={`group flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-all ${
+            className={`relative flex cursor-pointer items-center gap-2.5 px-3 py-2 transition-all border-b border-border/20 ${
               active
-                ? "border-emerald-500/30 bg-emerald-500/5"
-                : "border-transparent hover:border-border/50 hover:bg-card/50"
+                ? "bg-primary/5"
+                : "hover:bg-muted/20"
             }`}
             onClick={() => onSelect(site)}
           >
-            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${
-              active ? "bg-emerald-500/15" : "bg-muted/50"
+            {/* Active indicator — left accent bar */}
+            {active && (
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 rounded-r-full bg-primary" />
+            )}
+
+            <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors ${
+              active ? "bg-primary/10 text-primary" : "bg-muted/20 text-muted-foreground/50"
             }`}>
-              <Globe className={`h-3.5 w-3.5 ${active ? "text-emerald-500" : "text-muted-foreground"}`} />
+              <Globe className="h-3 w-3" />
             </div>
+
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-medium truncate">{site.name}</p>
-              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                <span className="truncate">
-                  {site.repository_url ? shortRepo(site.repository_url) : t("site.noRepository")}
-                </span>
-              </div>
+              <p className={`text-sm font-medium truncate ${active ? "text-foreground" : "text-foreground/80"}`}>
+                {site.name}
+              </p>
+              <p className="text-sm text-muted-foreground/50 truncate font-mono">
+                {site.repository_url ? shortRepo(site.repository_url) : t("site.noRepository")}
+              </p>
             </div>
-            <div className="flex shrink-0 items-center gap-1.5">
-              {site.deployment_status && (
-                <Badge
-                  variant="outline"
-                  className={`text-[9px] h-4 px-1 font-normal ${
-                    site.deployment_status === "deploying" || site.deployment_status === "queued"
-                      ? "border-amber-500/30 text-amber-500 animate-pulse"
-                      : site.deployment_status === "failed"
-                        ? "border-red-500/30 text-red-500"
-                        : "border-emerald-500/30 text-emerald-500"
-                  }`}
-                >
+
+            <div className="flex shrink-0 items-center gap-1">
+              {isDeploying && (
+                <Badge variant="outline" className="h-4 px-1 text-xs font-normal border-amber-500/30 text-amber-500 animate-pulse">
                   {site.deployment_status}
                 </Badge>
               )}
-              {site.quick_deploy && <Zap className="h-3 w-3 text-amber-500/70" />}
+              {site.quick_deploy && <Zap className="h-2.5 w-2.5 text-amber-500/50" />}
             </div>
           </div>
         );

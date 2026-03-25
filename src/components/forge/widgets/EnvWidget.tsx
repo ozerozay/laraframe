@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { cachedFetch, invalidateCache } from "@/lib/cache";
 import { forgeGetEnv, forgeUpdateEnv } from "@/lib/tauri";
 import { t } from "@/lib/i18n";
+import { ConfirmDialog } from "../shared/ConfirmDialog";
 
 interface Props {
   token: string;
@@ -24,6 +25,7 @@ export function EnvWidget({ token, orgSlug, serverId, siteId }: Props) {
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
 
   const load = async (force = false) => {
     setLoading(true);
@@ -67,15 +69,15 @@ export function EnvWidget({ token, orgSlug, serverId, siteId }: Props) {
     <div className="flex flex-1 flex-col min-h-0">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border/30 px-4 py-2">
-        <span className="text-[11px] text-muted-foreground font-mono">.env</span>
+        <span className="text-sm text-muted-foreground font-mono">.env</span>
         <div className="flex items-center gap-1.5">
           {loaded && !loading && !error && (
             editing ? (
               <>
                 <Button
                   size="sm"
-                  className="h-6 gap-1 px-2 text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white"
-                  onClick={save}
+                  className="h-6 gap-1 px-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                  onClick={() => setShowSaveConfirm(true)}
                   disabled={saving}
                 >
                   {saving ? <RefreshCw className="h-2.5 w-2.5 animate-spin" /> : <Save className="h-2.5 w-2.5" />}
@@ -84,7 +86,7 @@ export function EnvWidget({ token, orgSlug, serverId, siteId }: Props) {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-6 gap-1 px-2 text-[10px]"
+                  className="h-6 gap-1 px-2 text-xs"
                   onClick={() => { setDraft(content); setEditing(false); setSaveError(null); }}
                 >
                   <X className="h-2.5 w-2.5" /> {t("app.cancel")}
@@ -92,13 +94,13 @@ export function EnvWidget({ token, orgSlug, serverId, siteId }: Props) {
               </>
             ) : (
               <>
-                <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-[10px]" onClick={() => load(true)}>
+                <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}>
                   <RefreshCw className="h-2.5 w-2.5" /> {t("app.refresh")}
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-6 gap-1 px-2 text-[10px]"
+                  className="h-6 gap-1 px-2 text-xs"
                   onClick={() => { setDraft(content); setEditing(true); }}
                 >
                   <Pencil className="h-2.5 w-2.5" /> {t("app.edit")}
@@ -129,17 +131,17 @@ export function EnvWidget({ token, orgSlug, serverId, siteId }: Props) {
       ) : error ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 bg-zinc-100 dark:bg-zinc-950">
           <AlertCircle className="h-5 w-5 text-red-400/60" />
-          <p className="text-[11px] text-red-400/80 max-w-xs text-center">{error}</p>
+          <p className="text-sm text-red-400/80 max-w-xs text-center">{error}</p>
           <button
             onClick={() => { setError(null); setLoaded(false); }}
-            className="text-[10px] text-muted-foreground hover:text-foreground underline"
+            className="text-xs text-muted-foreground hover:text-foreground underline"
           >
             {t("app.retry")}
           </button>
         </div>
       ) : editing ? (
         <textarea
-          className="flex-1 resize-none bg-zinc-100 dark:bg-zinc-950 px-2 py-3 pl-10 font-mono text-[11px] leading-5 text-amber-700 dark:text-amber-300/80 focus:outline-none w-full"
+          className="flex-1 resize-none bg-zinc-100 dark:bg-zinc-950 px-2 py-3 pl-10 font-mono text-sm leading-5 text-amber-700 dark:text-amber-300/80 focus:outline-none w-full"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           spellCheck={false}
@@ -147,17 +149,27 @@ export function EnvWidget({ token, orgSlug, serverId, siteId }: Props) {
           autoCorrect="off"
         />
       ) : (
-        <div className="flex-1 overflow-auto bg-zinc-100 dark:bg-zinc-950 px-2 py-3 font-mono text-[11px] leading-5">
+        <div className="flex-1 overflow-auto bg-zinc-100 dark:bg-zinc-950 px-2 py-3 font-mono text-sm leading-5">
           {!content ? (
             <div className="flex h-full min-h-32 flex-col items-center justify-center gap-2 text-muted-foreground/40">
               <FileCode2 className="h-5 w-5" />
-              <span className="text-[11px]">{t("site.envNoFile")}</span>
+              <span className="text-sm">{t("site.envNoFile")}</span>
             </div>
           ) : (
             <EnvHighlighted content={content} />
           )}
         </div>
       )}
+      <ConfirmDialog
+        open={showSaveConfirm}
+        title="Update Environment"
+        description="This will update the .env file on your production server. Changes take effect immediately. Are you sure?"
+        variant="warning"
+        confirmText="Update"
+        loading={saving}
+        onConfirm={() => { setShowSaveConfirm(false); save(); }}
+        onCancel={() => setShowSaveConfirm(false)}
+      />
     </div>
   );
 }

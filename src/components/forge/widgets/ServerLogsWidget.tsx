@@ -59,11 +59,11 @@ export function ServerLogsWidget({ token, orgSlug, serverId, phpVersion }: Props
           </button>
         ))}
       </div>
-      <div className="overflow-auto rounded-lg bg-zinc-100 dark:bg-zinc-950 px-2 py-3 h-[calc(100vh-340px)] font-mono text-[11px] leading-5">
+      <div className="overflow-auto rounded-lg bg-zinc-100 dark:bg-zinc-950 px-2 py-3 h-[calc(100vh-340px)] font-mono text-sm leading-5">
         {!logType ? (
           <div className="flex h-full min-h-32 flex-col items-center justify-center gap-2 text-muted-foreground/40">
             <Terminal className="h-5 w-5" />
-            <span className="text-[11px]">{t("site.selectLogType")}</span>
+            <span className="text-sm">{t("site.selectLogType")}</span>
           </div>
         ) : loading ? (
           <div className="flex h-full min-h-32 items-center justify-center">
@@ -75,8 +75,8 @@ export function ServerLogsWidget({ token, orgSlug, serverId, phpVersion }: Props
         ) : error ? (
           <div className="flex h-full min-h-32 flex-col items-center justify-center gap-2">
             <AlertCircle className="h-5 w-5 text-red-400/60" />
-            <p className="text-[11px] text-red-400/80">{error}</p>
-            <button onClick={() => load(logType)} className="text-[10px] text-muted-foreground hover:text-foreground underline">
+            <p className="text-sm text-red-400/80">{error}</p>
+            <button onClick={() => load(logType)} className="text-xs text-muted-foreground hover:text-foreground underline">
               {t("app.retry")}
             </button>
           </div>

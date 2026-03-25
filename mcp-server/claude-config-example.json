@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "laraframe": {
+      "command": "node",
+      "args": ["/Users/loe/Documents/LaraFrame/mcp-server/dist/index.js"],
+      "env": {
+        "FORGE_API_TOKEN": "your-forge-api-token-here",
+        "FORGE_ORG_SLUG": ""
+      }
+    }
+  }
+}

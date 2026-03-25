@@ -309,6 +309,78 @@ struct BackupInstanceAttrs {
     created_at: String,
 }
 
+#[derive(Debug, Deserialize)]
+struct SSHKeyAttrs {
+    #[serde(default)]
+    name: String,
+    #[serde(default)]
+    status: String,
+    #[serde(default)]
+    created_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct FirewallRuleAttrs {
+    #[serde(default)]
+    name: String,
+    #[serde(default)]
+    port: String,
+    #[serde(default)]
+    ip_address: String,
+    #[serde(rename = "type", default)]
+    rule_type: String,
+    #[serde(default)]
+    status: String,
+    #[serde(default)]
+    created_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct DaemonAttrs {
+    #[serde(default)]
+    command: String,
+    #[serde(default)]
+    user: String,
+    #[serde(default)]
+    directory: String,
+    #[serde(default)]
+    processes: i64,
+    #[serde(default)]
+    status: String,
+    #[serde(default)]
+    created_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct DaemonLogAttrs {
+    #[serde(default)]
+    output: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct RecipeAttrs {
+    #[serde(default)]
+    name: String,
+    #[serde(default)]
+    script: String,
+    #[serde(default)]
+    user: String,
+    #[serde(default)]
+    created_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct PHPVersionAttrs {
+    #[serde(default)]
+    version: String,
+    #[serde(default)]
+    binary_name: String,
+    #[serde(default)]
+    status: String,
+    #[serde(default)]
+    created_at: String,
+}
+
 // =====================================================
 // Frontend-facing types (flat, easy to consume in TS)
 // =====================================================
@@ -495,6 +567,54 @@ pub struct ForgeBackupInstance {
     pub id: String,
     pub status: String,
     pub size: i64,
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct ForgeSSHKey {
+    pub id: String,
+    pub name: String,
+    pub status: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct ForgeFirewallRule {
+    pub id: String,
+    pub name: String,
+    pub port: String,
+    pub ip_address: String,
+    pub rule_type: String,
+    pub status: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct ForgeDaemon {
+    pub id: String,
+    pub command: String,
+    pub user: String,
+    pub directory: String,
+    pub processes: i64,
+    pub status: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct ForgeRecipe {
+    pub id: String,
+    pub name: String,
+    pub script: String,
+    pub user: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct ForgePHPVersion {
+    pub id: String,
+    pub version: String,
+    pub binary_name: String,
+    pub status: String,
     pub created_at: String,
 }
 
@@ -2065,6 +2185,462 @@ pub async fn forge_restore_backup(
             FORGE_API_URL, org_slug, server_id, config_id, backup_id
         ),
         None,
+    )
+    .await
+}
+
+// --- SSH Keys ---
+
+#[tauri::command]
+pub async fn forge_list_ssh_keys(
+    token: String,
+    org_slug: String,
+    server_id: String,
+) -> Result<Vec<ForgeSSHKey>, String> {
+    let client = build_client(&token)?;
+    let resp: JsonApiMany<SSHKeyAttrs> = api_get(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/ssh-keys",
+            FORGE_API_URL, org_slug, server_id
+        ),
+    )
+    .await?;
+    Ok(resp
+        .data
+        .into_iter()
+        .map(|r| ForgeSSHKey {
+            id: r.id,
+            name: r.attributes.name,
+            status: r.attributes.status,
+            created_at: r.attributes.created_at,
+        })
+        .collect())
+}
+
+#[tauri::command]
+pub async fn forge_create_ssh_key(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    name: String,
+    key: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_post(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/ssh-keys",
+            FORGE_API_URL, org_slug, server_id
+        ),
+        Some(serde_json::json!({ "name": name, "key": key })),
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn forge_delete_ssh_key(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    key_id: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_delete(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/ssh-keys/{}",
+            FORGE_API_URL, org_slug, server_id, key_id
+        ),
+    )
+    .await
+}
+
+// --- Firewall Rules ---
+
+#[tauri::command]
+pub async fn forge_list_firewall_rules(
+    token: String,
+    org_slug: String,
+    server_id: String,
+) -> Result<Vec<ForgeFirewallRule>, String> {
+    let client = build_client(&token)?;
+    let resp: JsonApiMany<FirewallRuleAttrs> = api_get(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/firewall-rules",
+            FORGE_API_URL, org_slug, server_id
+        ),
+    )
+    .await?;
+    Ok(resp
+        .data
+        .into_iter()
+        .map(|r| ForgeFirewallRule {
+            id: r.id,
+            name: r.attributes.name,
+            port: r.attributes.port,
+            ip_address: r.attributes.ip_address,
+            rule_type: r.attributes.rule_type,
+            status: r.attributes.status,
+            created_at: r.attributes.created_at,
+        })
+        .collect())
+}
+
+#[tauri::command]
+pub async fn forge_create_firewall_rule(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    name: String,
+    port: String,
+    ip_address: String,
+    rule_type: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_post(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/firewall-rules",
+            FORGE_API_URL, org_slug, server_id
+        ),
+        Some(serde_json::json!({ "name": name, "port": port, "ip_address": ip_address, "type": rule_type })),
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn forge_delete_firewall_rule(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    rule_id: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_delete(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/firewall-rules/{}",
+            FORGE_API_URL, org_slug, server_id, rule_id
+        ),
+    )
+    .await
+}
+
+// --- Background Processes / Daemons ---
+
+#[tauri::command]
+pub async fn forge_list_daemons(
+    token: String,
+    org_slug: String,
+    server_id: String,
+) -> Result<Vec<ForgeDaemon>, String> {
+    let client = build_client(&token)?;
+    let resp: JsonApiMany<DaemonAttrs> = api_get(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/background-processes",
+            FORGE_API_URL, org_slug, server_id
+        ),
+    )
+    .await?;
+    Ok(resp
+        .data
+        .into_iter()
+        .map(|r| ForgeDaemon {
+            id: r.id,
+            command: r.attributes.command,
+            user: r.attributes.user,
+            directory: r.attributes.directory,
+            processes: r.attributes.processes,
+            status: r.attributes.status,
+            created_at: r.attributes.created_at,
+        })
+        .collect())
+}
+
+#[tauri::command]
+pub async fn forge_create_daemon(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    command: String,
+    user: String,
+    directory: String,
+    processes: i64,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_post(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/background-processes",
+            FORGE_API_URL, org_slug, server_id
+        ),
+        Some(serde_json::json!({ "command": command, "user": user, "directory": directory, "processes": processes })),
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn forge_delete_daemon(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    daemon_id: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_delete(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/background-processes/{}",
+            FORGE_API_URL, org_slug, server_id, daemon_id
+        ),
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn forge_restart_daemon(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    daemon_id: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_post(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/background-processes/{}/actions",
+            FORGE_API_URL, org_slug, server_id, daemon_id
+        ),
+        Some(serde_json::json!({ "action": "restart" })),
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn forge_get_daemon_log(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    daemon_id: String,
+) -> Result<String, String> {
+    let client = build_client(&token)?;
+    api_get_text(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/background-processes/{}/log",
+            FORGE_API_URL, org_slug, server_id, daemon_id
+        ),
+    )
+    .await
+}
+
+// --- PHP Versions ---
+
+#[tauri::command]
+pub async fn forge_list_php_versions(
+    token: String,
+    org_slug: String,
+    server_id: String,
+) -> Result<Vec<ForgePHPVersion>, String> {
+    let client = build_client(&token)?;
+    let resp: JsonApiMany<PHPVersionAttrs> = api_get(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/php/versions",
+            FORGE_API_URL, org_slug, server_id
+        ),
+    )
+    .await?;
+    Ok(resp
+        .data
+        .into_iter()
+        .map(|r| ForgePHPVersion {
+            id: r.id,
+            version: r.attributes.version,
+            binary_name: r.attributes.binary_name,
+            status: r.attributes.status,
+            created_at: r.attributes.created_at,
+        })
+        .collect())
+}
+
+#[tauri::command]
+pub async fn forge_install_php_version(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    version: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_post(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/php/versions",
+            FORGE_API_URL, org_slug, server_id
+        ),
+        Some(serde_json::json!({ "version": version })),
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn forge_delete_php_version(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    version_id: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_delete(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/php/versions/{}",
+            FORGE_API_URL, org_slug, server_id, version_id
+        ),
+    )
+    .await
+}
+
+// --- Site Create/Delete ---
+
+#[tauri::command]
+pub async fn forge_create_site(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    domain: String,
+    project_type: String,
+    php_version: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_post(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/sites",
+            FORGE_API_URL, org_slug, server_id
+        ),
+        Some(serde_json::json!({ "domain": domain, "project_type": project_type, "php_version": php_version })),
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn forge_delete_site(
+    token: String,
+    org_slug: String,
+    server_id: String,
+    site_id: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_delete(
+        &client,
+        &format!(
+            "{}/orgs/{}/servers/{}/sites/{}",
+            FORGE_API_URL, org_slug, server_id, site_id
+        ),
+    )
+    .await
+}
+
+// --- Recipes ---
+
+#[tauri::command]
+pub async fn forge_list_recipes(
+    token: String,
+    org_slug: String,
+) -> Result<Vec<ForgeRecipe>, String> {
+    let client = build_client(&token)?;
+    let resp: JsonApiMany<RecipeAttrs> = api_get(
+        &client,
+        &format!("{}/orgs/{}/recipes", FORGE_API_URL, org_slug),
+    )
+    .await?;
+    Ok(resp
+        .data
+        .into_iter()
+        .map(|r| ForgeRecipe {
+            id: r.id,
+            name: r.attributes.name,
+            script: r.attributes.script,
+            user: r.attributes.user,
+            created_at: r.attributes.created_at,
+        })
+        .collect())
+}
+
+#[tauri::command]
+pub async fn forge_create_recipe(
+    token: String,
+    org_slug: String,
+    name: String,
+    script: String,
+    user: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_post(
+        &client,
+        &format!("{}/orgs/{}/recipes", FORGE_API_URL, org_slug),
+        Some(serde_json::json!({ "name": name, "script": script, "user": user })),
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn forge_update_recipe(
+    token: String,
+    org_slug: String,
+    recipe_id: String,
+    name: String,
+    script: String,
+    user: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_put(
+        &client,
+        &format!(
+            "{}/orgs/{}/recipes/{}",
+            FORGE_API_URL, org_slug, recipe_id
+        ),
+        Some(serde_json::json!({ "name": name, "script": script, "user": user })),
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn forge_delete_recipe(
+    token: String,
+    org_slug: String,
+    recipe_id: String,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_delete(
+        &client,
+        &format!(
+            "{}/orgs/{}/recipes/{}",
+            FORGE_API_URL, org_slug, recipe_id
+        ),
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn forge_run_recipe(
+    token: String,
+    org_slug: String,
+    recipe_id: String,
+    servers: Vec<String>,
+) -> Result<(), String> {
+    let client = build_client(&token)?;
+    api_post(
+        &client,
+        &format!(
+            "{}/orgs/{}/recipes/{}/runs",
+            FORGE_API_URL, org_slug, recipe_id
+        ),
+        Some(serde_json::json!({ "servers": servers })),
     )
     .await
 }

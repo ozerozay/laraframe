@@ -41,26 +41,26 @@ export function ScriptEditor({
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border/30 px-4 py-2">
-        <span className="text-[11px] text-muted-foreground font-mono">{title}</span>
+        <span className="text-sm text-muted-foreground font-mono">{title}</span>
         {!readonly && (
           editing ? (
             <div className="flex gap-1.5">
               <Button
                 size="sm"
-                className="h-6 gap-1 px-2 text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="h-6 gap-1 px-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
                 onClick={handleSave}
                 disabled={saving}
               >
                 {saving ? <RefreshCw className="h-2.5 w-2.5 animate-spin" /> : <Save className="h-2.5 w-2.5" />}
                 {saving ? "Saving..." : "Save"}
               </Button>
-              <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-[10px]" onClick={handleCancel}>
+              <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={handleCancel}>
                 <X className="h-2.5 w-2.5" />
                 Cancel
               </Button>
             </div>
           ) : (
-            <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-[10px]" onClick={() => { setDraft(content); setEditing(true); }}>
+            <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => { setDraft(content); setEditing(true); }}>
               <Pencil className="h-2.5 w-2.5" />
               Edit
             </Button>
@@ -71,7 +71,7 @@ export function ScriptEditor({
       {/* Content */}
       {editing ? (
         <textarea
-          className="flex-1 resize-none bg-zinc-100 dark:bg-zinc-950 px-2 py-3 pl-10 font-mono text-[11px] leading-5 text-foreground/80 focus:outline-none w-full"
+          className="flex-1 resize-none bg-zinc-100 dark:bg-zinc-950 px-2 py-3 pl-10 font-mono text-sm leading-5 text-foreground/80 focus:outline-none w-full"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           spellCheck={false}
@@ -79,7 +79,7 @@ export function ScriptEditor({
           autoCorrect="off"
         />
       ) : (
-        <div className="flex-1 overflow-auto bg-zinc-100 dark:bg-zinc-950 px-2 py-3 font-mono text-[11px] leading-5">
+        <div className="flex-1 overflow-auto bg-zinc-100 dark:bg-zinc-950 px-2 py-3 font-mono text-sm leading-5">
           <ScriptHighlighted content={content} language={language} />
         </div>
       )}
@@ -102,7 +102,7 @@ function ScriptHighlighted({ content, language }: { content: string; language: "
 
         return (
           <div key={i} className="flex hover:bg-white/[0.02] group">
-            <span className="w-10 shrink-0 select-none text-right pr-3 text-[10px] text-muted-foreground/20 group-hover:text-muted-foreground/40 tabular-nums">
+            <span className="w-10 shrink-0 select-none text-right pr-3 text-xs text-muted-foreground/20 group-hover:text-muted-foreground/40 tabular-nums">
               {i + 1}
             </span>
             <span>{colorize(trimmed, line, language)}</span>

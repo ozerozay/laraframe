@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -11,8 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Server, Cloud, Activity, Bot, Trash2, Eye, EyeOff } from "lucide-react";
+import { Server, Cloud, Trash2, Eye, EyeOff, Globe, Check } from "lucide-react";
 import { saveApiKey, deleteApiKey, hasApiKey, SERVICES } from "@/lib/tauri";
+import { useTranslation, setLanguage } from "@/lib/i18n";
+import { MCPSetup } from "@/components/settings/MCPSetup";
 
 interface ApiKeyFieldProps {
   service: string;
@@ -23,6 +26,7 @@ interface ApiKeyFieldProps {
 }
 
 function ApiKeyField({ service, label, description, icon, placeholder }: ApiKeyFieldProps) {
+  const { t } = useTranslation();
   const [token, setToken] = useState("");
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -76,7 +80,7 @@ function ApiKeyField({ service, label, description, icon, placeholder }: ApiKeyF
                 : "bg-muted text-muted-foreground"
             }
           >
-            {connected ? "Connected" : "Disconnected"}
+            {connected ? t("app.connected") : t("app.disconnected")}
           </Badge>
         </div>
         <CardDescription>{description}</CardDescription>
@@ -84,10 +88,10 @@ function ApiKeyField({ service, label, description, icon, placeholder }: ApiKeyF
       <CardContent>
         {connected ? (
           <div className="flex items-center gap-3">
-            <p className="text-sm text-muted-foreground">API key saved securely in your system keychain.</p>
+            <p className="text-sm text-muted-foreground">{t("settings.keySaved")}</p>
             <Button variant="destructive" size="sm" onClick={handleDelete}>
               <Trash2 className="mr-2 h-4 w-4" />
-              Remove
+              {t("settings.remove")}
             </Button>
           </div>
         ) : (
@@ -109,7 +113,7 @@ function ApiKeyField({ service, label, description, icon, placeholder }: ApiKeyF
               </button>
             </div>
             <Button onClick={handleSave} disabled={saving || !token.trim()}>
-              {saving ? "Saving..." : "Connect"}
+              {saving ? t("app.saving") : t("app.connected").split(" ")[0] || "Connect"}
             </Button>
           </div>
         )}
@@ -118,71 +122,95 @@ function ApiKeyField({ service, label, description, icon, placeholder }: ApiKeyF
   );
 }
 
+const LANGUAGES = [
+  { code: "en" as const, label: "English", flag: "🇺🇸" },
+  { code: "tr" as const, label: "Turkce", flag: "🇹🇷" },
+];
+
 export function SettingsPage() {
+  const { t, lang } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "connections";
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
-          Configure your API connections and preferences.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("settings.title")}</h1>
+        <p className="text-muted-foreground">{t("settings.subtitle")}</p>
       </div>
 
-      <Tabs defaultValue="connections">
+      <Tabs defaultValue={defaultTab}>
         <TabsList>
-          <TabsTrigger value="connections">API Connections</TabsTrigger>
-          <TabsTrigger value="ai">AI Settings</TabsTrigger>
-          <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="connections">{t("settings.apiConnections")}</TabsTrigger>
+          <TabsTrigger value="mcp">MCP Setup</TabsTrigger>
+          <TabsTrigger value="general">{t("settings.general")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="connections" className="mt-4 space-y-4">
           <ApiKeyField
             service={SERVICES.FORGE}
             label="Laravel Forge"
-            description="Connect your Forge account to manage servers and sites."
+            description={t("settings.connectForge")}
             icon={<Server className="h-5 w-5" />}
             placeholder="Forge API Token"
           />
           <ApiKeyField
             service={SERVICES.CLOUD}
             label="Laravel Cloud"
-            description="Connect your Cloud account to manage applications."
+            description={t("settings.connectCloud")}
             icon={<Cloud className="h-5 w-5" />}
             placeholder="Cloud API Token"
           />
-          <ApiKeyField
-            service={SERVICES.NIGHTWATCH}
-            label="Nightwatch"
-            description="Connect your Nightwatch account for monitoring."
-            icon={<Activity className="h-5 w-5" />}
-            placeholder="Nightwatch API Token"
-          />
+          {/* Nightwatch has no REST API - removed */}
         </TabsContent>
 
-        <TabsContent value="ai" className="mt-4 space-y-4">
-          <ApiKeyField
-            service={SERVICES.CLAUDE}
-            label="Claude AI"
-            description="Add your Anthropic API key to enable the AI assistant."
-            icon={<Bot className="h-5 w-5" />}
-            placeholder="sk-ant-..."
-          />
+        <TabsContent value="mcp" className="mt-4">
+          <MCPSetup />
         </TabsContent>
 
         <TabsContent value="general" className="mt-4 space-y-4">
+          {/* Language */}
           <Card>
             <CardHeader>
-              <CardTitle>About</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Globe className="h-5 w-5" />
+                {t("settings.language")}
+              </CardTitle>
+              <CardDescription>
+                {lang === "tr" ? "Uygulama dilini secin" : "Choose your preferred language"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                {LANGUAGES.map((l) => (
+                  <button
+                    key={l.code}
+                    onClick={() => setLanguage(l.code)}
+                    className={`flex items-center gap-2.5 rounded-lg border px-4 py-3 transition-all ${
+                      lang === l.code
+                        ? "border-primary bg-primary/5 text-foreground"
+                        : "border-border hover:border-border/80 hover:bg-muted/30 text-muted-foreground"
+                    }`}
+                  >
+                    <span className="text-lg">{l.flag}</span>
+                    <span className="text-sm font-medium">{l.label}</span>
+                    {lang === l.code && <Check className="h-4 w-4 text-primary ml-1" />}
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* About */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("settings.about")}</CardTitle>
               <CardDescription>LaraFrame v0.1.0</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                A unified desktop client for Laravel Cloud, Forge, and Nightwatch.
-              </p>
+              <p className="text-sm text-muted-foreground">{t("settings.aboutDesc")}</p>
               <Separator className="my-4" />
-              <p className="text-xs text-muted-foreground">
-                Built with Tauri, React, and Rust. API keys are stored securely in your OS keychain.
-              </p>
+              <p className="text-xs text-muted-foreground">{t("settings.builtWith")}</p>
             </CardContent>
           </Card>
         </TabsContent>

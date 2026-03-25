@@ -69,7 +69,7 @@ export function MonitorsWidget({ token, orgSlug, serverId }: Props) {
               <span className="text-2xl font-bold tabular-nums">
                 {m.threshold}<span className="text-sm font-normal text-muted-foreground">%</span>
               </span>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {m.operator === "gte" ? t("monitor.above") : t("monitor.below")} {m.minutes}m
               </span>
             </div>

@@ -57,7 +57,7 @@ export function LogViewer({ content, color = "emerald", emptyText = "No log cont
 
         return (
           <div key={i} className={`flex hover:bg-black/[0.03] dark:hover:bg-white/[0.02] group ${!line.trim() ? "h-3" : ""}`}>
-            <span className="w-10 shrink-0 select-none text-right pr-3 text-[10px] text-muted-foreground/30 group-hover:text-muted-foreground/50 tabular-nums">
+            <span className="w-10 shrink-0 select-none text-right pr-3 text-xs text-muted-foreground/30 group-hover:text-muted-foreground/50 tabular-nums">
               {i + 1}
             </span>
             <span className={`flex-1 ${lineColor}`}>{line}</span>

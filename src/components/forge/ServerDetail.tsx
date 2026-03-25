@@ -3,7 +3,7 @@ import { Globe, RefreshCw } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { t } from "@/lib/i18n";
-import { cachedFetch, invalidateCache } from "@/lib/cache";
+import { cachedFetch, invalidateCache, setCache } from "@/lib/cache";
 import {
   forgeListSites,
   forgeListDeployments,
@@ -17,12 +17,33 @@ import { ServerInfoBar } from "./ServerInfoBar";
 import { SiteList } from "./SiteList";
 import { SiteHeader } from "./SiteHeader";
 import { DeploymentsWidget } from "./widgets/DeploymentsWidget";
+import { DeployScriptWidget } from "./widgets/DeployScriptWidget";
 import { SiteLogsWidget } from "./widgets/SiteLogsWidget";
 import { EnvWidget } from "./widgets/EnvWidget";
+import { NginxConfigWidget } from "./widgets/NginxConfigWidget";
+import { IntegrationsWidget } from "./widgets/IntegrationsWidget";
+import { CommandsWidget } from "./widgets/CommandsWidget";
+import { ScheduledJobsWidget } from "./widgets/ScheduledJobsWidget";
+import { RedirectRulesWidget } from "./widgets/RedirectRulesWidget";
+import { SecurityRulesWidget } from "./widgets/SecurityRulesWidget";
+import { WebhooksWidget } from "./widgets/WebhooksWidget";
+import { HeartbeatsWidget } from "./widgets/HeartbeatsWidget";
+import { DomainsWidget } from "./widgets/DomainsWidget";
+import { HealthcheckWidget } from "./widgets/HealthcheckWidget";
+import { HelpPanel, HelpButton } from "./shared/HelpPanel";
 import { EventsWidget } from "./widgets/EventsWidget";
 import { MonitorsWidget } from "./widgets/MonitorsWidget";
 import { ServerLogsWidget } from "./widgets/ServerLogsWidget";
 import { DatabaseWidget } from "./widgets/DatabaseWidget";
+import { SSHKeysWidget } from "./widgets/SSHKeysWidget";
+import { FirewallWidget } from "./widgets/FirewallWidget";
+import { DaemonsWidget } from "./widgets/DaemonsWidget";
+import { ServiceActionsWidget } from "./widgets/ServiceActionsWidget";
+import { PHPVersionsWidget } from "./widgets/PHPVersionsWidget";
+import { RecipesWidget } from "./widgets/RecipesWidget";
+import { SiteCreateDeleteWidget } from "./widgets/SiteCreateDeleteWidget";
+
+const TAB_STYLE = "h-7 px-3 rounded-md text-xs font-medium text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground data-[state=active]:shadow-sm hover:text-foreground transition-all whitespace-nowrap";
 
 interface Props {
   server: ForgeServer;
@@ -39,8 +60,14 @@ export function ServerDetail({ server, token, orgSlug }: Props) {
   const [siteLoading, setSiteLoading] = useState(false);
   const [deployments, setDeployments] = useState<ForgeDeployment[]>([]);
   const [deployingId, setDeployingId] = useState<string | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpSection, setHelpSection] = useState<string | null>(null);
 
-  // Load sites on first render (no useEffect)
+  const openHelp = (sectionId: string) => {
+    setHelpSection(sectionId);
+    setHelpOpen(true);
+  };
+
   if (!sitesLoaded && !sitesLoading) {
     setSitesLoading(true);
     cachedFetch(`server:${server.id}:sites`, () => forgeListSites(token, orgSlug, server.id))
@@ -65,108 +92,120 @@ export function ServerDetail({ server, token, orgSlug }: Props) {
     setSiteLoading(false);
   };
 
+  const refreshAll = async (siteId: string) => {
+    invalidateCache(`site:${siteId}:deployments`);
+    invalidateCache(`server:${server.id}:sites`);
+    const [newDeps, newSites] = await Promise.all([
+      forgeListDeployments(token, orgSlug, server.id, siteId),
+      forgeListSites(token, orgSlug, server.id),
+    ]);
+    setCache(`site:${siteId}:deployments`, newDeps);
+    setCache(`server:${server.id}:sites`, newSites);
+    setDeployments(newDeps);
+    setSites(newSites);
+    const updated = newSites.find((s) => s.id === siteId);
+    if (updated) setSelectedSite(updated);
+    return { deps: newDeps, site: updated };
+  };
 
   const deploySite = async (site: ForgeSite) => {
     setDeployingId(site.id);
     const toastId = toast.loading(`Deploying ${site.name}...`);
     try {
       await forgeDeploySite(token, orgSlug, server.id, site.id);
-      toast.success(`Deployment queued for ${site.name}`, { id: toastId });
-
-      // Refresh immediately + start polling
-      const refresh = async () => {
-        invalidateCache(`site:${site.id}:deployments`);
-        invalidateCache(`server:${server.id}:sites`);
-        const [newDeps, newSites] = await Promise.all([
-          forgeListDeployments(token, orgSlug, server.id, site.id),
-          forgeListSites(token, orgSlug, server.id),
-        ]);
-        setDeployments(newDeps);
-        setSites(newSites);
-        const updated = newSites.find((s) => s.id === site.id);
-        if (updated) setSelectedSite(updated);
-        return updated;
-      };
-
-      await refresh();
-
-      // Poll until deployment finishes
-      const poll = setInterval(async () => {
-        const current = await refresh();
+      toast.success(`Deployment queued`, { id: toastId, description: site.name });
+      await new Promise((r) => setTimeout(r, 2000));
+      await refreshAll(site.id);
+      for (let i = 0; i < 60; i++) {
+        await new Promise((r) => setTimeout(r, 5000));
+        const { deps, site: current } = await refreshAll(site.id);
         const status = current?.deployment_status;
         if (!status || !["deploying", "queued"].includes(status)) {
-          clearInterval(poll);
-          // Get final deployment result
-          const finalDeps = await forgeListDeployments(token, orgSlug, server.id, site.id);
-          setDeployments(finalDeps);
-          const latest = [...finalDeps].pop();
+          const latest = [...deps].pop();
           if (latest?.status === "failed") {
-            toast.error(`Deployment failed: ${site.name}`, {
-              description: latest.commit_message || undefined,
-            });
+            toast.error(`Deployment failed: ${site.name}`, { description: latest.commit_message || undefined });
           } else {
-            toast.success(`Deployed: ${site.name}`, {
-              description: latest?.commit_message || undefined,
-            });
+            toast.success(`Deployed: ${site.name}`, { description: latest?.commit_message || undefined });
           }
+          break;
         }
-      }, 5000);
-      setTimeout(() => clearInterval(poll), 300_000);
+      }
     } catch (err) {
-      toast.error(`Deploy failed: ${site.name}`, {
-        id: toastId,
-        description: String(err),
-      });
+      toast.error(`Deploy failed: ${site.name}`, { id: toastId, description: String(err) });
     }
     setDeployingId(null);
   };
 
   if (sitesLoading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-muted-foreground">
-          <RefreshCw className="h-5 w-5 animate-spin" />
-          <span className="text-xs tracking-wide uppercase">{t("forge.loadingServer")}</span>
+      <div className="flex h-full items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <RefreshCw className="h-4 w-4 animate-spin text-primary/60" />
+          <span className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground/40">{t("forge.loadingServer")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full flex-col gap-3">
+    <div className="flex h-full flex-col">
       <ServerInfoBar server={server} />
 
       <Tabs defaultValue="sites" className="flex-1 flex flex-col min-h-0">
-        <TabsList className="shrink-0">
-          <TabsTrigger value="sites">{t("forge.sites")} ({sites.length})</TabsTrigger>
-          <TabsTrigger value="database">{t("forge.database")}</TabsTrigger>
-          <TabsTrigger value="monitors">{t("forge.monitors")}</TabsTrigger>
-          <TabsTrigger value="events">{t("forge.events")}</TabsTrigger>
-          <TabsTrigger value="logs">{t("forge.serverLogs")}</TabsTrigger>
-        </TabsList>
+        <div className="border-b border-border/30 px-3 py-1.5">
+          <TabsList className="h-8 gap-1 bg-transparent p-0">
+            {[
+              { value: "sites", label: `${t("forge.sites")} (${sites.length})` },
+              { value: "database", label: t("forge.database") },
+              { value: "daemons", label: "Daemons" },
+              { value: "ssh-keys", label: "SSH Keys" },
+              { value: "firewall", label: "Firewall" },
+              { value: "php", label: "PHP" },
+              { value: "services", label: "Services" },
+              { value: "recipes", label: "Recipes" },
+              { value: "monitors", label: t("forge.monitors") },
+              { value: "events", label: t("forge.events") },
+              { value: "logs", label: t("forge.serverLogs") },
+            ].map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value} className={TAB_STYLE}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         {/* Sites */}
-        <TabsContent value="sites" className="mt-3 flex-1 min-h-0">
-          <div className="flex h-full gap-3">
-            <SiteList
+        <TabsContent value="sites" className="flex-1 min-h-0 m-0">
+          <div className="flex h-full">
+            <div className="w-64 shrink-0 flex flex-col border-r border-border/30">
+              <div className="px-3 py-2 border-b border-border/20">
+                <SiteCreateDeleteWidget
+                  token={token}
+                  orgSlug={orgSlug}
+                  serverId={server.id}
+                  onSiteCreated={() => { invalidateCache(`server:${server.id}:sites`); setSitesLoaded(false); }}
+                  onSiteDeleted={() => { setSelectedSite(null); invalidateCache(`server:${server.id}:sites`); setSitesLoaded(false); }}
+                  selectedSiteId={selectedSite?.id ?? null}
+                  selectedSiteName={selectedSite?.name ?? null}
+                />
+              </div>
+              <SiteList
               sites={sites}
               selectedId={selectedSite?.id ?? null}
               onSelect={selectSite}
             />
+            </div>
 
             <div className="flex-1 min-w-0">
               {selectedSite && siteLoading ? (
-                <div className="flex h-full items-center justify-center rounded-lg border border-border/50 bg-card/30">
+                <div className="flex h-full items-center justify-center">
                   <div className="flex flex-col items-center gap-3">
-                    <RefreshCw className="h-5 w-5 animate-spin text-emerald-500" />
-                    <div className="text-center">
-                      <p className="text-xs font-medium">{selectedSite.name}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{t("forge.loadingSite")}</p>
-                    </div>
+                    <RefreshCw className="h-4 w-4 animate-spin text-primary/60" />
+                    <p className="text-xs text-muted-foreground/40">{selectedSite.name}</p>
                   </div>
                 </div>
               ) : selectedSite ? (
-                <div className="flex h-full flex-col rounded-lg border border-border/50 bg-card/30 overflow-hidden">
+                <div className="flex h-full flex-col">
                   <SiteHeader
                     site={selectedSite}
                     deploying={deployingId === selectedSite.id}
@@ -174,17 +213,29 @@ export function ServerDetail({ server, token, orgSlug }: Props) {
                   />
 
                   <Tabs defaultValue="deployments" className="flex-1 flex flex-col min-h-0">
-                    <div className="border-b border-border/50 px-4">
-                      <TabsList className="h-9 bg-transparent p-0 gap-4">
-                        <TabsTrigger value="deployments" className="h-9 rounded-none border-b-2 border-transparent px-0 pb-2 pt-2 text-xs data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none">
-                          {t("site.deployments")}
-                        </TabsTrigger>
-                        <TabsTrigger value="site-logs" className="h-9 rounded-none border-b-2 border-transparent px-0 pb-2 pt-2 text-xs data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none">
-                          {t("site.logs")}
-                        </TabsTrigger>
-                        <TabsTrigger value="env" className="h-9 rounded-none border-b-2 border-transparent px-0 pb-2 pt-2 text-xs data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none">
-                          {t("site.environment")}
-                        </TabsTrigger>
+                    <div className="border-b border-border/30 px-3 py-1.5 overflow-x-auto">
+                      <TabsList className="h-8 gap-1 bg-transparent p-0 flex-nowrap">
+                        {[
+                          { value: "deployments", label: t("site.deployments"), helpId: "deployments" },
+                          { value: "deploy-script", label: "Script", helpId: "deploy-script" },
+                          { value: "site-logs", label: t("site.logs"), helpId: "site-logs" },
+                          { value: "env", label: "Env", helpId: "env" },
+                          { value: "nginx", label: "Nginx", helpId: "nginx" },
+                          { value: "domains", label: "Domains", helpId: "domains" },
+                          { value: "integrations", label: "Integrations", helpId: "integrations" },
+                          { value: "commands", label: "Commands", helpId: "commands" },
+                          { value: "jobs", label: "Jobs", helpId: "jobs" },
+                          { value: "redirects", label: "Redirects", helpId: "redirects" },
+                          { value: "security", label: "Security", helpId: "security" },
+                          { value: "webhooks", label: "Webhooks", helpId: "webhooks" },
+                          { value: "heartbeats", label: "Heartbeats", helpId: "heartbeats" },
+                          { value: "healthcheck", label: "Health", helpId: "heartbeats" },
+                        ].map((tab) => (
+                          <TabsTrigger key={tab.value} value={tab.value} className={TAB_STYLE}>
+                            {tab.label}
+                          </TabsTrigger>
+                        ))}
+                        <HelpButton sectionId="deployments" onOpen={openHelp} />
                       </TabsList>
                     </div>
 
@@ -203,31 +254,64 @@ export function ServerDetail({ server, token, orgSlug }: Props) {
                       />
                     </TabsContent>
 
+                    <TabsContent value="deploy-script" className="flex-1 m-0 flex flex-col min-h-0">
+                      <DeployScriptWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
+                    </TabsContent>
+
                     <TabsContent value="site-logs" className="flex-1 m-0 flex flex-col min-h-0">
-                      <SiteLogsWidget
-                        token={token}
-                        orgSlug={orgSlug}
-                        serverId={server.id}
-                        siteId={selectedSite.id}
-                      />
+                      <SiteLogsWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
                     </TabsContent>
 
                     <TabsContent value="env" className="flex-1 m-0 flex flex-col min-h-0">
-                      <EnvWidget
-                        key={selectedSite.id}
-                        token={token}
-                        orgSlug={orgSlug}
-                        serverId={server.id}
-                        siteId={selectedSite.id}
-                      />
+                      <EnvWidget key={selectedSite.id} token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
+                    </TabsContent>
+
+                    <TabsContent value="nginx" className="flex-1 m-0 flex flex-col min-h-0">
+                      <NginxConfigWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
+                    </TabsContent>
+
+                    <TabsContent value="domains" className="flex-1 m-0 flex flex-col min-h-0">
+                      <DomainsWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
+                    </TabsContent>
+
+                    <TabsContent value="integrations" className="flex-1 m-0 overflow-auto">
+                      <IntegrationsWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
+                    </TabsContent>
+
+                    <TabsContent value="commands" className="flex-1 m-0 flex flex-col min-h-0">
+                      <CommandsWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
+                    </TabsContent>
+
+                    <TabsContent value="jobs" className="flex-1 m-0 flex flex-col min-h-0">
+                      <ScheduledJobsWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
+                    </TabsContent>
+
+                    <TabsContent value="redirects" className="flex-1 m-0 flex flex-col min-h-0">
+                      <RedirectRulesWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
+                    </TabsContent>
+
+                    <TabsContent value="security" className="flex-1 m-0 flex flex-col min-h-0">
+                      <SecurityRulesWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
+                    </TabsContent>
+
+                    <TabsContent value="webhooks" className="flex-1 m-0 flex flex-col min-h-0">
+                      <WebhooksWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
+                    </TabsContent>
+
+                    <TabsContent value="heartbeats" className="flex-1 m-0 flex flex-col min-h-0">
+                      <HeartbeatsWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
+                    </TabsContent>
+
+                    <TabsContent value="healthcheck" className="flex-1 m-0 overflow-auto">
+                      <HealthcheckWidget token={token} orgSlug={orgSlug} serverId={server.id} siteId={selectedSite.id} />
                     </TabsContent>
                   </Tabs>
                 </div>
               ) : (
-                <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-border/40">
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <Globe className="h-6 w-6 opacity-30" />
-                    <p className="text-xs">{t("forge.selectSite")}</p>
+                <div className="flex h-full items-center justify-center">
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground/20">
+                    <Globe className="h-8 w-8" />
+                    <p className="text-sm font-medium">{t("forge.selectSite")}</p>
                   </div>
                 </div>
               )}
@@ -235,28 +319,54 @@ export function ServerDetail({ server, token, orgSlug }: Props) {
           </div>
         </TabsContent>
 
-        {/* Database - lazy */}
-        <TabsContent value="database" className="mt-3 flex-1 min-h-0">
-          <div className="h-full rounded-lg border border-border/50 bg-card/30 overflow-hidden">
+        <TabsContent value="database" className="flex-1 min-h-0 m-0">
+          <div className="h-full">
             <DatabaseWidget token={token} orgSlug={orgSlug} serverId={server.id} />
           </div>
         </TabsContent>
 
-        {/* Monitors - lazy */}
-        <TabsContent value="monitors" className="mt-3">
+        <TabsContent value="daemons" className="flex-1 min-h-0 m-0">
+          <DaemonsWidget token={token} orgSlug={orgSlug} serverId={server.id} />
+        </TabsContent>
+
+        <TabsContent value="ssh-keys" className="flex-1 min-h-0 m-0">
+          <SSHKeysWidget token={token} orgSlug={orgSlug} serverId={server.id} />
+        </TabsContent>
+
+        <TabsContent value="firewall" className="flex-1 min-h-0 m-0">
+          <FirewallWidget token={token} orgSlug={orgSlug} serverId={server.id} />
+        </TabsContent>
+
+        <TabsContent value="php" className="flex-1 min-h-0 m-0">
+          <PHPVersionsWidget token={token} orgSlug={orgSlug} serverId={server.id} />
+        </TabsContent>
+
+        <TabsContent value="services" className="flex-1 m-0 overflow-auto">
+          <ServiceActionsWidget token={token} orgSlug={orgSlug} serverId={server.id} />
+        </TabsContent>
+
+        <TabsContent value="recipes" className="flex-1 min-h-0 m-0">
+          <RecipesWidget token={token} orgSlug={orgSlug} serverId={server.id} />
+        </TabsContent>
+
+        <TabsContent value="monitors" className="flex-1 m-0 p-4 overflow-auto">
           <MonitorsWidget token={token} orgSlug={orgSlug} serverId={server.id} />
         </TabsContent>
 
-        {/* Events - lazy */}
-        <TabsContent value="events" className="mt-3">
+        <TabsContent value="events" className="flex-1 m-0 p-4 overflow-auto">
           <EventsWidget token={token} orgSlug={orgSlug} serverId={server.id} />
         </TabsContent>
 
-        {/* Server Logs - lazy */}
-        <TabsContent value="logs">
+        <TabsContent value="logs" className="flex-1 m-0">
           <ServerLogsWidget token={token} orgSlug={orgSlug} serverId={server.id} phpVersion={server.php_version} />
         </TabsContent>
       </Tabs>
+
+      <HelpPanel
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        activeSection={helpSection}
+      />
     </div>
   );
 }

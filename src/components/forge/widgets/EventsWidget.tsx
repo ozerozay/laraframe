@@ -58,8 +58,8 @@ export function EventsWidget({ token, orgSlug, serverId }: Props) {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] leading-snug">{event.description}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(event.created_at)}</p>
+                <p className="text-sm leading-snug">{event.description}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{timeAgo(event.created_at)}</p>
               </div>
             </div>
           ))}

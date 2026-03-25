@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Server, RefreshCw, AlertCircle } from "lucide-react";
+import { Server, RefreshCw, AlertCircle, Unplug, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import { t } from "@/lib/i18n";
 import { cachedFetch, invalidateCache } from "@/lib/cache";
 import {
   getApiKey,
+  saveApiKey,
   forgeGetUser,
   forgeListOrgs,
   forgeListServers,
@@ -27,6 +30,23 @@ export function Forge() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [tokenInput, setTokenInput] = useState("");
+  const [showToken, setShowToken] = useState(false);
+  const [savingToken, setSavingToken] = useState(false);
+
+  const handleSaveToken = async () => {
+    if (!tokenInput.trim()) return;
+    setSavingToken(true);
+    try {
+      await saveApiKey(SERVICES.FORGE, tokenInput.trim());
+      setTokenInput("");
+      toast.success("Forge API token saved");
+      init(true);
+    } catch (err) {
+      toast.error(`Failed: ${err}`);
+    }
+    setSavingToken(false);
+  };
 
   const init = async (force = false) => {
     setLoading(true);
@@ -56,7 +76,6 @@ export function Forge() {
     setLoading(false);
   };
 
-  // Init once, no useEffect
   if (!initialized) {
     setInitialized(true);
     init();
@@ -77,18 +96,44 @@ export function Forge() {
     }
   };
 
-  /* ── States ── */
+  /* ── Full-page states ── */
 
   if (!loading && !token) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/30 border border-border/50">
-            <Server className="h-7 w-7 text-muted-foreground" />
+        <div className="flex flex-col items-center gap-5 w-full max-w-sm">
+          <div className="relative">
+            <div className="absolute -inset-4 rounded-full bg-primary/5 blur-xl" />
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/10 shadow-lg shadow-primary/5">
+              <Unplug className="h-6 w-6 text-primary/70" />
+            </div>
           </div>
-          <div className="text-center">
-            <p className="text-sm font-medium">{t("forge.notConnected")}</p>
-            <p className="mt-1 text-xs text-muted-foreground">{t("forge.notConnectedDesc")}</p>
+          <div className="text-center space-y-1">
+            <p className="text-sm font-medium tracking-tight">{t("forge.notConnected")}</p>
+            <p className="text-sm text-muted-foreground/70">{t("forge.notConnectedDesc")}</p>
+          </div>
+          <div className="w-full space-y-3">
+            <div className="relative">
+              <Input
+                type={showToken ? "text" : "password"}
+                placeholder="Forge API Token"
+                value={tokenInput}
+                onChange={(e) => setTokenInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSaveToken()}
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowToken(!showToken)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <Button className="w-full" onClick={handleSaveToken} disabled={savingToken || !tokenInput.trim()}>
+              {savingToken ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}
+              Connect
+            </Button>
           </div>
         </div>
       </div>
@@ -98,10 +143,12 @@ export function Forge() {
   if (error) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <AlertCircle className="h-8 w-8 text-red-500" />
-          <p className="text-xs text-red-400 max-w-sm text-center">{error}</p>
-          <Button variant="outline" size="sm" className="mt-2" onClick={() => init(true)}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10 border border-destructive/20">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+          </div>
+          <p className="text-sm text-destructive/80 max-w-sm text-center leading-relaxed">{error}</p>
+          <Button variant="outline" size="sm" className="h-7 text-sm" onClick={() => init(true)}>
             {t("app.retry")}
           </Button>
         </div>
@@ -112,32 +159,35 @@ export function Forge() {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-muted-foreground">
-          <RefreshCw className="h-5 w-5 animate-spin" />
-          <span className="text-xs tracking-wide uppercase">{t("forge.connecting")}</span>
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-primary/10 animate-ping" />
+            <RefreshCw className="relative h-5 w-5 animate-spin text-primary" />
+          </div>
+          <span className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground/60">{t("forge.connecting")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-[calc(100vh-3rem)] flex-col gap-3">
-      {/* Header */}
-      <div className="flex items-center justify-between shrink-0">
+    <div className="flex h-[calc(100vh-3rem)] flex-col">
+      {/* Header — razor-thin, high density */}
+      <div className="flex items-center justify-between shrink-0 pb-2">
         <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-lg font-semibold tracking-tight">{t("forge.title")}</h1>
-            {user && <p className="text-[11px] text-muted-foreground">{user.name}</p>}
-          </div>
+          <h1 className="text-base font-semibold tracking-tight">{t("forge.title")}</h1>
+          {user && (
+            <span className="text-xs text-muted-foreground/50 font-mono">{user.name}</span>
+          )}
           {orgs.length > 1 && (
-            <div className="flex gap-1 ml-4">
+            <div className="flex gap-0.5 ml-2 rounded-md bg-muted/30 p-0.5">
               {orgs.map((org) => (
                 <button
                   key={org.id}
                   onClick={() => selectOrg(org)}
-                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  className={`rounded px-2 py-0.5 text-xs font-medium transition-all ${
                     selectedOrg?.id === org.id
-                      ? "bg-muted text-foreground"
+                      ? "bg-background text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -147,26 +197,28 @@ export function Forge() {
             </div>
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+        <button
+          className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
           onClick={() => init(true)}
         >
           <RefreshCw className="h-3 w-3" />
-          {t("app.refresh")}
-        </Button>
+          <span className="hidden sm:inline">{t("app.refresh")}</span>
+        </button>
       </div>
 
-      {/* Layout */}
-      <div className="flex flex-1 gap-3 min-h-0">
-        <ServerList
-          servers={servers}
-          selectedId={selectedServer?.id ?? null}
-          onSelect={setSelectedServer}
-        />
+      {/* Main layout */}
+      <div className="flex flex-1 gap-0 min-h-0 rounded-lg border border-border/40 overflow-hidden">
+        {/* Server sidebar — separated by subtle border */}
+        <div className="border-r border-border/40 bg-card/20">
+          <ServerList
+            servers={servers}
+            selectedId={selectedServer?.id ?? null}
+            onSelect={setSelectedServer}
+          />
+        </div>
 
-        <div className="flex-1 min-w-0">
+        {/* Content area */}
+        <div className="flex-1 min-w-0 bg-background/50">
           {selectedServer ? (
             <ServerDetail
               key={selectedServer.id}
@@ -175,10 +227,10 @@ export function Forge() {
               orgSlug={selectedOrg!.slug}
             />
           ) : (
-            <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-border/40">
-              <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                <Server className="h-6 w-6 opacity-30" />
-                <p className="text-xs">{t("forge.selectServer")}</p>
+            <div className="flex h-full items-center justify-center">
+              <div className="flex flex-col items-center gap-3 text-muted-foreground/30">
+                <Server className="h-8 w-8" />
+                <p className="text-sm font-medium">{t("forge.selectServer")}</p>
               </div>
             </div>
           )}

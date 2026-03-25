@@ -56,7 +56,7 @@ export function EnvHighlighted({ content }: EnvHighlightedProps) {
 
 function LineNumber({ n }: { n: number }) {
   return (
-    <span className="w-10 shrink-0 select-none text-right pr-3 text-[10px] text-muted-foreground/30 group-hover:text-muted-foreground/50 tabular-nums">
+    <span className="w-10 shrink-0 select-none text-right pr-3 text-xs text-muted-foreground/30 group-hover:text-muted-foreground/50 tabular-nums">
       {n}
     </span>
   );

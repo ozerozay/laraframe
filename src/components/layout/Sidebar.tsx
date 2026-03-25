@@ -3,7 +3,6 @@ import {
   Server,
   Cloud,
   Activity,
-  Bot,
   Settings,
   Sun,
   Moon,
@@ -23,7 +22,6 @@ const navItems = [
   { to: "/forge", icon: Server, label: "Forge" },
   { to: "/cloud", icon: Cloud, label: "Cloud" },
   { to: "/nightwatch", icon: Activity, label: "Nightwatch" },
-  { to: "/ai", icon: Bot, label: "AI Assistant" },
 ];
 
 export function Sidebar() {
