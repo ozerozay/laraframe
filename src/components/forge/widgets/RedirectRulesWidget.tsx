@@ -62,7 +62,7 @@ export function RedirectRulesWidget({ token, orgSlug, serverId, siteId }: Props)
         <span className="text-sm text-muted-foreground">Redirects ({rules.length})</span>
         <div className="flex gap-1.5">
           <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}><RefreshCw className="h-2.5 w-2.5" /> {t("app.refresh")}</Button>
-          <Button size="sm" className="h-6 gap-1 px-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setShowCreate(true)}><Plus className="h-2.5 w-2.5" /> Add</Button>
+          <Button size="sm" className="h-6 gap-1 px-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setShowCreate(true)}><Plus className="h-2.5 w-2.5" /> {t("app.add")}</Button>
         </div>
       </div>
       {showCreate && (
@@ -89,7 +89,7 @@ export function RedirectRulesWidget({ token, orgSlug, serverId, siteId }: Props)
                 <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0" />
                 <code className="text-sm font-mono truncate flex-1">{rule.to}</code>
                 <Badge variant="outline" className="text-sm">{rule.redirect_type === "permanent" ? "301" : "302"}</Badge>
-                <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget(rule)}>
+                <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget(rule)} aria-label="Delete">
                   <Trash2 className="h-3 w-3" />
                 </Button>
               </div>

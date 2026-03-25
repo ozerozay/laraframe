@@ -351,7 +351,7 @@ export function DatabaseWidget({ token, orgSlug, serverId }: Props) {
                   <Badge variant="outline" className={`text-sm font-normal ${db.status === "installed" ? "border-emerald-500/30 text-emerald-500" : "border-amber-500/30 text-amber-500"}`}>
                     {db.status || "unknown"}
                   </Badge>
-                  <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget({ type: "db", id: db.id, name: db.name })}>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget({ type: "db", id: db.id, name: db.name })} aria-label="Delete">
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -378,10 +378,10 @@ export function DatabaseWidget({ token, orgSlug, serverId }: Props) {
                   <Badge variant="outline" className={`text-sm font-normal ${user.status === "installed" ? "border-emerald-500/30 text-emerald-500" : "border-amber-500/30 text-amber-500"}`}>
                     {user.status || "unknown"}
                   </Badge>
-                  <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary" onClick={() => { setEditUserTarget(user); setSelectedDatabases([]); }}>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary" onClick={() => { setEditUserTarget(user); setSelectedDatabases([]); }} aria-label="Edit">
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget({ type: "user", id: user.id, name: user.name })}>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget({ type: "user", id: user.id, name: user.name })} aria-label="Delete">
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -417,6 +417,7 @@ export function DatabaseWidget({ token, orgSlug, serverId }: Props) {
                       className="h-6 w-6 shrink-0"
                       onClick={(e) => { e.stopPropagation(); handleCreateBackup(config.id); }}
                       title="Run backup now"
+                      aria-label="Run backup now"
                     >
                       <Plus className="h-3 w-3" />
                     </Button>
@@ -457,6 +458,7 @@ export function DatabaseWidget({ token, orgSlug, serverId }: Props) {
                         className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-blue-400"
                         onClick={() => setRestoreTarget({ configId: selectedBackupConfig.id, backupId: backup.id, name: timeAgo(backup.created_at) || backup.id })}
                         title="Restore this backup"
+                        aria-label="Restore"
                       >
                         <RotateCcw className="h-3.5 w-3.5" />
                       </Button>
@@ -465,6 +467,7 @@ export function DatabaseWidget({ token, orgSlug, serverId }: Props) {
                         variant="ghost"
                         className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-400"
                         onClick={() => setDeleteTarget({ type: "backup", id: backup.id, name: timeAgo(backup.created_at) || backup.id, configId: selectedBackupConfig.id })}
+                        aria-label="Delete"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
@@ -508,7 +511,7 @@ export function DatabaseWidget({ token, orgSlug, serverId }: Props) {
           <div className="relative w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl mx-4 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-semibold">Edit User: {editUserTarget.name}</h3>
-              <button onClick={() => setEditUserTarget(null)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+              <button onClick={() => setEditUserTarget(null)} className="text-muted-foreground hover:text-foreground" aria-label="Close"><X className="h-4 w-4" /></button>
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-2 block">Accessible Databases</label>
@@ -534,10 +537,10 @@ export function DatabaseWidget({ token, orgSlug, serverId }: Props) {
               )}
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 h-9" onClick={() => setEditUserTarget(null)}>Cancel</Button>
+              <Button variant="outline" className="flex-1 h-9" onClick={() => setEditUserTarget(null)}>{t("app.cancel")}</Button>
               <Button className="flex-1 h-9" onClick={handleUpdateUserDatabases} disabled={editUserSaving}>
                 {editUserSaving ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                Save
+                {t("app.save")}
               </Button>
             </div>
           </div>
@@ -551,7 +554,7 @@ export function DatabaseWidget({ token, orgSlug, serverId }: Props) {
           <div className="relative w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl mx-4 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-semibold">Change Database Password</h3>
-              <button onClick={() => setShowChangePassword(false)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+              <button onClick={() => setShowChangePassword(false)} className="text-muted-foreground hover:text-foreground" aria-label="Close"><X className="h-4 w-4" /></button>
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">New Password</label>
@@ -566,7 +569,7 @@ export function DatabaseWidget({ token, orgSlug, serverId }: Props) {
               />
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 h-9" onClick={() => { setShowChangePassword(false); setNewPassword(""); }}>Cancel</Button>
+              <Button variant="outline" className="flex-1 h-9" onClick={() => { setShowChangePassword(false); setNewPassword(""); }}>{t("app.cancel")}</Button>
               <Button className="flex-1 h-9" onClick={handleChangePassword} disabled={changingPassword || !newPassword.trim()}>
                 {changingPassword ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <KeyRound className="h-4 w-4 mr-2" />}
                 Change Password

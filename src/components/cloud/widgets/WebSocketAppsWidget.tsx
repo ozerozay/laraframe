@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/helpers";
+import { t } from "@/lib/i18n";
 import { cachedFetch, invalidateCache } from "@/lib/cache";
 import { EmptyState } from "@/components/forge/shared/EmptyState";
 import { ConfirmDialog } from "@/components/forge/shared/ConfirmDialog";
@@ -71,8 +72,8 @@ export function WebSocketAppsWidget({ token, serverId }: Props) {
       <div className="flex items-center justify-between border-b border-border/30 px-4 py-2">
         <span className="text-sm text-muted-foreground">WebSocket Applications ({apps.length})</span>
         <div className="flex gap-1.5">
-          <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}><RefreshCw className="h-3 w-3" /> Refresh</Button>
-          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> Add</Button>
+          <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}><RefreshCw className="h-3 w-3" /> {t("app.refresh")}</Button>
+          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> {t("app.add")}</Button>
         </div>
       </div>
       {showCreate && (
@@ -80,9 +81,9 @@ export function WebSocketAppsWidget({ token, serverId }: Props) {
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Application name" className="h-8 text-xs flex-1" autoFocus
             onKeyDown={(e) => { if (e.key === "Enter" && name.trim()) create(); }} />
           <Button size="sm" className="h-8 text-xs" onClick={create} disabled={creating || !name.trim()}>
-            {creating ? <RefreshCw className="h-3 w-3 animate-spin" /> : "Create"}
+            {creating ? <RefreshCw className="h-3 w-3 animate-spin" /> : t("app.create")}
           </Button>
-          <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setShowCreate(false)}>Cancel</Button>
+          <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setShowCreate(false)}>{t("app.cancel")}</Button>
         </div>
       )}
       <div className="flex-1 overflow-auto">
@@ -106,7 +107,7 @@ export function WebSocketAppsWidget({ token, serverId }: Props) {
                       {showSecret ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                     </button>
                     <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400"
-                      onClick={() => setDeleteTarget(app)}>
+                      onClick={() => setDeleteTarget(app)} aria-label="Delete">
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>

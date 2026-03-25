@@ -79,7 +79,7 @@ export function EnvVariablesWidget({ token, envId, variables, onRefresh }: Props
         <span className="text-sm text-muted-foreground">Variables ({variables.length})</span>
         <div className="flex gap-1.5">
           <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={onRefresh}><RefreshCw className="h-3 w-3" /> {t("app.refresh")}</Button>
-          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowAdd(true)}><Plus className="h-3 w-3" /> Add</Button>
+          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowAdd(true)}><Plus className="h-3 w-3" /> {t("app.add")}</Button>
         </div>
       </div>
 
@@ -116,10 +116,10 @@ export function EnvVariablesWidget({ token, envId, variables, onRefresh }: Props
                       autoFocus
                       onKeyDown={(e) => e.key === "Enter" && saveEdit()}
                     />
-                    <Button size="icon" variant="ghost" className="h-6 w-6 text-emerald-500 hover:text-emerald-400" onClick={saveEdit} disabled={saving}>
+                    <Button size="icon" variant="ghost" className="h-6 w-6 text-emerald-500 hover:text-emerald-400" onClick={saveEdit} disabled={saving} aria-label="Save">
                       {saving ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground" onClick={() => setEditKey(null)}>
+                    <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground" onClick={() => setEditKey(null)} aria-label="Close">
                       <X className="h-3 w-3" />
                     </Button>
                   </div>
@@ -139,11 +139,11 @@ export function EnvVariablesWidget({ token, envId, variables, onRefresh }: Props
                     </Button>
                   )}
                   <Button size="icon" variant="ghost" className="h-5 w-5 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary"
-                    onClick={() => { setEditKey(v.key); setEditValue(v.value); }}>
+                    onClick={() => { setEditKey(v.key); setEditValue(v.value); }} aria-label="Edit">
                     <Pencil className="h-3 w-3" />
                   </Button>
                   <Button size="icon" variant="ghost" className="h-5 w-5 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400"
-                    onClick={() => setDeleteTarget(v.key)}>
+                    onClick={() => setDeleteTarget(v.key)} aria-label="Delete">
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>

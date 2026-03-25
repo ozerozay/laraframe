@@ -65,7 +65,7 @@ export function FirewallWidget({ token, orgSlug, serverId }: Props) {
         <span className="text-sm text-muted-foreground">Firewall Rules ({rules.length})</span>
         <div className="flex gap-1.5">
           <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}><RefreshCw className="h-3 w-3" /> {t("app.refresh")}</Button>
-          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> Add Rule</Button>
+          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> {t("app.add")} Rule</Button>
         </div>
       </div>
       {showCreate && (
@@ -110,7 +110,7 @@ export function FirewallWidget({ token, orgSlug, serverId }: Props) {
                 <Badge variant="outline" className={`text-xs font-normal ${rule.status === "installed" ? "border-emerald-500/30 text-emerald-500" : "border-amber-500/30 text-amber-500"}`}>
                   {rule.status}
                 </Badge>
-                <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget(rule)}>
+                <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget(rule)} aria-label="Delete">
                   <Trash2 className="h-3 w-3" />
                 </Button>
               </div>

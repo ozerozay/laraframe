@@ -92,7 +92,7 @@ export function CommandsWidget({ token, orgSlug, serverId, siteId }: Props) {
           {running ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
           Run
         </Button>
-        <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => load(true)}>
+        <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => load(true)} aria-label="Refresh">
           <RefreshCw className="h-3 w-3" />
         </Button>
       </div>

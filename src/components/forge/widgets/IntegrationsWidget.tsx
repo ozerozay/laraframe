@@ -118,6 +118,7 @@ export function IntegrationsWidget({ token, orgSlug, serverId, siteId }: Props) 
               className={`h-8 w-8 ${enabled ? "text-emerald-500 hover:text-red-400" : "text-muted-foreground hover:text-emerald-500"}`}
               onClick={() => setConfirmTarget({ key: integration.key, label: integration.label, currentlyEnabled: enabled })}
               disabled={toggling}
+              aria-label={enabled ? "Disable" : "Enable"}
             >
               {toggling ? (
                 <RefreshCw className="h-4 w-4 animate-spin" />

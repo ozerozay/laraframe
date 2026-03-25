@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Info, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { t } from "@/lib/i18n";
 import { cachedFetch, invalidateCache } from "@/lib/cache";
 
 interface Props {
@@ -36,7 +37,7 @@ export function InfoWidget({ token: _token, cacheKey, fetcher, title }: Props) {
           <span className="text-sm text-muted-foreground">{title}</span>
         </div>
         <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}>
-          <RefreshCw className="h-3 w-3" /> Refresh
+          <RefreshCw className="h-3 w-3" /> {t("app.refresh")}
         </Button>
       </div>
       <div className="flex-1 overflow-auto p-4">

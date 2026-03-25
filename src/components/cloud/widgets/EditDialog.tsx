@@ -3,6 +3,7 @@ import { Pencil, Save, X, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 interface Field {
   key: string;
@@ -52,7 +53,7 @@ export function EditDialog({ open, title, fields, values: initialValues, onSave,
       <div className="relative w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl mx-4 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold">{title}</h3>
-          <button onClick={onCancel} className="text-muted-foreground hover:text-foreground">
+          <button onClick={onCancel} className="text-muted-foreground hover:text-foreground" aria-label="Close">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -85,10 +86,10 @@ export function EditDialog({ open, title, fields, values: initialValues, onSave,
         </div>
 
         <div className="flex gap-3">
-          <Button variant="outline" className="flex-1 h-9" onClick={onCancel}>Cancel</Button>
+          <Button variant="outline" className="flex-1 h-9" onClick={onCancel}>{t("app.cancel")}</Button>
           <Button className="flex-1 h-9" onClick={handleSave} disabled={saving}>
             {saving ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-            Save
+            {t("app.save")}
           </Button>
         </div>
       </div>
@@ -99,7 +100,7 @@ export function EditDialog({ open, title, fields, values: initialValues, onSave,
 /** Small edit button to trigger EditDialog */
 export function EditButton({ onClick }: { onClick: () => void }) {
   return (
-    <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary" onClick={onClick}>
+    <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary" onClick={onClick} aria-label="Edit">
       <Pencil className="h-3 w-3" />
     </Button>
   );

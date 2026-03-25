@@ -89,7 +89,7 @@ export function DaemonsWidget({ token, orgSlug, serverId }: Props) {
         <span className="text-sm text-muted-foreground">Daemons ({daemons.length})</span>
         <div className="flex gap-1.5">
           <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}><RefreshCw className="h-3 w-3" /> {t("app.refresh")}</Button>
-          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> Add Daemon</Button>
+          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> {t("app.add")} Daemon</Button>
         </div>
       </div>
       {showCreate && (
@@ -130,11 +130,11 @@ export function DaemonsWidget({ token, orgSlug, serverId }: Props) {
                     {d.status}
                   </Badge>
                   <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-blue-400"
-                    onClick={(e) => { e.stopPropagation(); restart(d.id); }} disabled={restartingId === d.id} title="Restart">
+                    onClick={(e) => { e.stopPropagation(); restart(d.id); }} disabled={restartingId === d.id} title="Restart" aria-label="Restart">
                     {restartingId === d.id ? <RefreshCw className="h-3 w-3 animate-spin" /> : <RotateCcw className="h-3 w-3" />}
                   </Button>
                   <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400"
-                    onClick={(e) => { e.stopPropagation(); setDeleteTarget(d); }}>
+                    onClick={(e) => { e.stopPropagation(); setDeleteTarget(d); }} aria-label="Delete">
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>

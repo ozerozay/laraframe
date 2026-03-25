@@ -95,7 +95,7 @@ export function PHPVersionsWidget({ token, orgSlug, serverId }: Props) {
                       </Badge>
                       {versions.length > 1 && (
                         <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400"
-                          onClick={() => setDeleteTarget(v)}>
+                          onClick={() => setDeleteTarget(v)} aria-label="Delete">
                           <Trash2 className="h-3 w-3" />
                         </Button>
                       )}

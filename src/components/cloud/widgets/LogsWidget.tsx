@@ -2,6 +2,7 @@ import { useState } from "react";
 import { RefreshCw, AlertCircle, Clock, Info, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { t } from "@/lib/i18n";
 import { cloudGetEnvironmentLogs } from "@/lib/tauri";
 
 interface Props { token: string; envId: string; }
@@ -88,7 +89,7 @@ export function CloudLogsWidget({ token, envId }: Props) {
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">{logs.length} entries</span>
           <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load()}>
-            <RefreshCw className="h-3 w-3" /> Refresh
+            <RefreshCw className="h-3 w-3" /> {t("app.refresh")}
           </Button>
         </div>
       </div>

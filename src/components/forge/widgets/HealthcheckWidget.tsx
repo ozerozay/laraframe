@@ -72,7 +72,7 @@ export function HealthcheckWidget({ token, orgSlug, serverId, siteId }: Props) {
                     {saving ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
                     {t("app.save")}
                   </Button>
-                  <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => { setDraft(url); setEditing(false); }}>
+                  <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => { setDraft(url); setEditing(false); }} aria-label="Close">
                     <X className="h-3 w-3" />
                   </Button>
                 </div>

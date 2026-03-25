@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/helpers";
+import { t } from "@/lib/i18n";
 import { cachedFetch, invalidateCache } from "@/lib/cache";
 import { EmptyState } from "@/components/forge/shared/EmptyState";
 import { ConfirmDialog } from "@/components/forge/shared/ConfirmDialog";
@@ -208,9 +209,9 @@ export function CloudDatabasesWidget({ token }: Props) {
             <Input value={newSchemaName} onChange={(e) => setNewSchemaName(e.target.value)} placeholder="Database name" className="h-8 text-xs flex-1" autoFocus
               onKeyDown={(e) => { if (e.key === "Enter" && newSchemaName.trim()) createSchema(); }} />
             <Button size="sm" className="h-8 text-xs" onClick={createSchema} disabled={creatingSchema || !newSchemaName.trim()}>
-              {creatingSchema ? <RefreshCw className="h-3 w-3 animate-spin" /> : "Create"}
+              {creatingSchema ? <RefreshCw className="h-3 w-3 animate-spin" /> : t("app.create")}
             </Button>
-            <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setShowCreateSchema(false)}>Cancel</Button>
+            <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setShowCreateSchema(false)}>{t("app.cancel")}</Button>
           </div>
         )}
 
@@ -234,7 +235,7 @@ export function CloudDatabasesWidget({ token }: Props) {
                     </div>
                     {s.status && <Badge variant="outline" className={`text-xs font-normal ${s.status === "available" ? "border-emerald-500/30 text-emerald-500" : "border-amber-500/30 text-amber-500"}`}>{s.status}</Badge>}
                     <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400"
-                      onClick={() => setDeleteTarget({ type: "schema", id: s.id, name: s.name, clusterId: selectedCluster.id })}>
+                      onClick={() => setDeleteTarget({ type: "schema", id: s.id, name: s.name, clusterId: selectedCluster.id })} aria-label="Delete">
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
@@ -266,7 +267,7 @@ export function CloudDatabasesWidget({ token }: Props) {
                       <RotateCcw className="h-3 w-3 mr-1" /> Restore
                     </Button>
                     <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400"
-                      onClick={() => setDeleteTarget({ type: "snapshot", id: s.id, name: s.name || s.id })}>
+                      onClick={() => setDeleteTarget({ type: "snapshot", id: s.id, name: s.name || s.id })} aria-label="Delete">
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
@@ -293,8 +294,8 @@ export function CloudDatabasesWidget({ token }: Props) {
           ))}
         </div>
         <div className="flex gap-1.5">
-          <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}><RefreshCw className="h-3 w-3" /> Refresh</Button>
-          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> Create</Button>
+          <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}><RefreshCw className="h-3 w-3" /> {t("app.refresh")}</Button>
+          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> {t("app.create")}</Button>
         </div>
       </div>
 
@@ -318,9 +319,9 @@ export function CloudDatabasesWidget({ token }: Props) {
           </div>
           <div className="flex gap-2">
             <Button size="sm" className="h-8 text-xs" onClick={createCluster} disabled={creating || !newName.trim()}>
-              {creating ? <RefreshCw className="h-3 w-3 animate-spin mr-1" /> : null} Create
+              {creating ? <RefreshCw className="h-3 w-3 animate-spin mr-1" /> : null} {t("app.create")}
             </Button>
-            <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setShowCreate(false)}>Cancel</Button>
+            <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setShowCreate(false)}>{t("app.cancel")}</Button>
           </div>
         </div>
       )}
@@ -341,7 +342,7 @@ export function CloudDatabasesWidget({ token }: Props) {
                     </div>
                   </div>
                   <Badge variant="outline" className={`text-xs font-normal ${c.status === "available" ? "border-emerald-500/30 text-emerald-500" : "border-amber-500/30 text-amber-500"}`}>{c.status}</Badge>
-                  <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: "cluster", id: c.id, name: c.name }); }}>
+                  <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: "cluster", id: c.id, name: c.name }); }} aria-label="Delete">
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
@@ -363,7 +364,7 @@ export function CloudDatabasesWidget({ token }: Props) {
                     </div>
                   </div>
                   <Badge variant="outline" className={`text-xs font-normal ${d.status === "available" ? "border-emerald-500/30 text-emerald-500" : "border-amber-500/30 text-amber-500"}`}>{d.status}</Badge>
-                  <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget({ type: "database", id: d.id, name: d.name })}>
+                  <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget({ type: "database", id: d.id, name: d.name })} aria-label="Delete">
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>

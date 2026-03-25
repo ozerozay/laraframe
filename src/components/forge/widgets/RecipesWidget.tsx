@@ -109,7 +109,7 @@ export function RecipesWidget({ token, orgSlug, serverId }: Props) {
             <RefreshCw className="h-3 w-3" /> {t("app.refresh")}
           </Button>
           <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}>
-            <Plus className="h-3 w-3" /> New Recipe
+            <Plus className="h-3 w-3" /> {t("app.create")} Recipe
           </Button>
         </div>
       </div>
@@ -160,7 +160,7 @@ export function RecipesWidget({ token, orgSlug, serverId }: Props) {
                       Run
                     </Button>
                     <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400"
-                      onClick={(e) => { e.stopPropagation(); setDeleteTarget(recipe); }}>
+                      onClick={(e) => { e.stopPropagation(); setDeleteTarget(recipe); }} aria-label="Delete">
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>

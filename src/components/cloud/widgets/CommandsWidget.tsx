@@ -70,7 +70,7 @@ export function CloudCommandsWidget({ token, envId }: Props) {
         <Button size="sm" className="h-8 gap-1 text-xs" onClick={() => { if (cmd.trim()) setShowRunConfirm(true); }} disabled={running || !cmd.trim()}>
           {running ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />} Run
         </Button>
-        <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => load(true)}><RefreshCw className="h-3 w-3" /></Button>
+        <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => load(true)} aria-label="Refresh"><RefreshCw className="h-3 w-3" /></Button>
       </div>
       <div className="flex-1 overflow-auto">
         {loading && !loaded ? (

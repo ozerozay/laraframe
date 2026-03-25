@@ -95,7 +95,7 @@ export function SecurityRulesWidget({ token, orgSlug, serverId, siteId }: Props)
                   <p className="text-sm font-medium">{rule.name}</p>
                   <p className="text-xs text-muted-foreground font-mono">{rule.path}</p>
                 </div>
-                <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget(rule)}>
+                <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget(rule)} aria-label="Delete">
                   <Trash2 className="h-3 w-3" />
                 </Button>
               </div>

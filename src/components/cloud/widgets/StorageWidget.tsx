@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 import { cachedFetch, invalidateCache } from "@/lib/cache";
 import { EmptyState } from "@/components/forge/shared/EmptyState";
 import { ConfirmDialog } from "@/components/forge/shared/ConfirmDialog";
@@ -77,8 +78,8 @@ export function CloudStorageWidget({ token }: Props) {
       <div className="flex items-center justify-between border-b border-border/30 px-4 py-2">
         <span className="text-sm text-muted-foreground">Object Storage ({buckets.length})</span>
         <div className="flex gap-1.5">
-          <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}><RefreshCw className="h-3 w-3" /> Refresh</Button>
-          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> Create Bucket</Button>
+          <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}><RefreshCw className="h-3 w-3" /> {t("app.refresh")}</Button>
+          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> {t("app.create")} Bucket</Button>
         </div>
       </div>
       {showCreate && (
@@ -87,8 +88,8 @@ export function CloudStorageWidget({ token }: Props) {
           <select value={visibility} onChange={(e) => setVisibility(e.target.value)} className="h-8 rounded-md border bg-transparent px-2 text-xs">
             <option value="private">Private</option><option value="public">Public</option>
           </select>
-          <Button size="sm" className="h-8 text-xs" onClick={create} disabled={creating || !name.trim()}>{creating ? <RefreshCw className="h-3 w-3 animate-spin" /> : "Create"}</Button>
-          <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setShowCreate(false)}>Cancel</Button>
+          <Button size="sm" className="h-8 text-xs" onClick={create} disabled={creating || !name.trim()}>{creating ? <RefreshCw className="h-3 w-3 animate-spin" /> : t("app.create")}</Button>
+          <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setShowCreate(false)}>{t("app.cancel")}</Button>
         </div>
       )}
       <div className="flex-1 overflow-auto">
@@ -108,7 +109,7 @@ export function CloudStorageWidget({ token }: Props) {
                   </div>
                   <Badge variant="outline" className={`text-xs font-normal ${b.status === "available" ? "border-emerald-500/30 text-emerald-500" : "border-amber-500/30 text-amber-500"}`}>{b.status}</Badge>
                   <EditButton onClick={() => { setEditTarget(b); }} />
-                  <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: "bucket", id: b.id, name: b.name }); }}>
+                  <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: "bucket", id: b.id, name: b.name }); }} aria-label="Delete">
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
@@ -124,8 +125,8 @@ export function CloudStorageWidget({ token }: Props) {
                         <select value={keyPerm} onChange={(e) => setKeyPerm(e.target.value)} className="h-7 rounded-md border bg-transparent px-2 text-xs">
                           <option value="read_write">Read/Write</option><option value="read_only">Read Only</option>
                         </select>
-                        <Button size="sm" className="h-7 text-xs" onClick={() => createKey(b.id)} disabled={creatingKey || !keyName.trim()}>Create</Button>
-                        <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setShowCreateKey(false)}>Cancel</Button>
+                        <Button size="sm" className="h-7 text-xs" onClick={() => createKey(b.id)} disabled={creatingKey || !keyName.trim()}>{t("app.create")}</Button>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setShowCreateKey(false)}>{t("app.cancel")}</Button>
                       </div>
                     )}
                     {keysLoading ? <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground" /> : keys.length === 0 ? (
@@ -137,7 +138,7 @@ export function CloudStorageWidget({ token }: Props) {
                             <Key className="h-3 w-3 text-muted-foreground" />
                             <span className="text-xs font-medium flex-1">{k.name}</span>
                             <Badge variant="outline" className="text-xs h-4 px-1">{k.permission}</Badge>
-                            <Button size="icon" variant="ghost" className="h-5 w-5 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget({ type: "key", id: k.id, name: k.name })}>
+                            <Button size="icon" variant="ghost" className="h-5 w-5 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget({ type: "key", id: k.id, name: k.name })} aria-label="Delete">
                               <Trash2 className="h-2.5 w-2.5" />
                             </Button>
                           </div>

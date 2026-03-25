@@ -64,7 +64,7 @@ export function SSHKeysWidget({ token, orgSlug, serverId }: Props) {
         <span className="text-sm text-muted-foreground">SSH Keys ({keys.length})</span>
         <div className="flex gap-1.5">
           <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}><RefreshCw className="h-3 w-3" /> {t("app.refresh")}</Button>
-          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> Add Key</Button>
+          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> {t("app.add")} Key</Button>
         </div>
       </div>
       {showCreate && (
@@ -102,7 +102,7 @@ export function SSHKeysWidget({ token, orgSlug, serverId }: Props) {
                   {k.status}
                 </Badge>
                 <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400"
-                  onClick={() => setDeleteTarget(k)}>
+                  onClick={() => setDeleteTarget(k)} aria-label="Delete">
                   <Trash2 className="h-3 w-3" />
                 </Button>
               </div>

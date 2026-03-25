@@ -269,6 +269,7 @@ export function DomainsWidget({ token, orgSlug, serverId, siteId }: Props) {
                         variant="ghost"
                         className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400"
                         onClick={(e) => { e.stopPropagation(); setDeleteTarget(domain); }}
+                        aria-label="Delete"
                       >
                         <Trash2 className="h-3 w-3" />
                       </Button>

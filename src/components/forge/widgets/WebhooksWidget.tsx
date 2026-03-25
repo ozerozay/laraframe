@@ -60,7 +60,7 @@ export function WebhooksWidget({ token, orgSlug, serverId, siteId }: Props) {
         <span className="text-sm text-muted-foreground">Webhooks ({webhooks.length})</span>
         <div className="flex gap-1.5">
           <Button size="sm" variant="ghost" className="h-6 gap-1 px-2 text-xs" onClick={() => load(true)}><RefreshCw className="h-3 w-3" /> {t("app.refresh")}</Button>
-          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> Add</Button>
+          <Button size="sm" className="h-6 gap-1 px-2 text-xs" onClick={() => setShowCreate(true)}><Plus className="h-3 w-3" /> {t("app.add")}</Button>
         </div>
       </div>
       {showCreate && (
@@ -84,7 +84,7 @@ export function WebhooksWidget({ token, orgSlug, serverId, siteId }: Props) {
                   <p className="text-sm font-mono truncate">{wh.url}</p>
                   <p className="text-xs text-muted-foreground">{timeAgo(wh.created_at)}</p>
                 </div>
-                <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget(wh)}>
+                <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-400" onClick={() => setDeleteTarget(wh)} aria-label="Delete">
                   <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
